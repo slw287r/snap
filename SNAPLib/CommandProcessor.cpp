@@ -19,6 +19,7 @@ User mode service.
 Revision History:
 
     Pulled from the main program and expanded to handle daemon mode
+    v2.0.3a: Add stats of host rRNA reads to output for capture-efficiency of tNGS-Max
 
 --*/
 
@@ -36,7 +37,7 @@ Revision History:
 #include "Compat.h"
 #include "HitDepth.h"
 
-const char *SNAP_VERSION = "2.0.3";
+const char *SNAP_VERSION = "2.0.3a";
 
 static void usage()
 {

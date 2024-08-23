@@ -51,15 +51,15 @@ public:
         unsigned                 i_maxReadSize,
         unsigned                 i_maxSeedsToUse,
         double                   i_maxSeedCoverage,
-		unsigned                 i_minWeightToCheck,
+        unsigned                 i_minWeightToCheck,
         unsigned                 i_extraSearchDepth,
         DisabledOptimizations    i_disabledOptimizations,
         bool                     i_useAffineGap,           
         bool                     i_ignoreAlignmentAdjustmentsForOm,
-		bool			         i_altAwareness,
+        bool                     i_altAwareness,
         bool                     i_emitALTAlignments,
         int                      i_maxScoreGapToPreferNonAltAlignment,
-		int                      i_maxSecondaryAlignmentsPerContig,
+        int                      i_maxSecondaryAlignmentsPerContig,
         LandauVishkin<1>        *i_landauVishkin = NULL,
         LandauVishkin<-1>       *i_reverseLandauVishkin = NULL,
         unsigned                 i_matchReward = 1,
@@ -98,7 +98,6 @@ public:
         _int64 nCandidatesForAffineGap,
         SingleAlignmentResult* candidatesForAffineGap // Alignment candidates that need to be rescored using affine gap
     );
-        
     //
     // Statistics gathering.
     //
@@ -325,6 +324,7 @@ private:
             }
         }
 
+        void fillInSingleAlignmentLocation(SingleAlignmentResult* result, int popularSeedsSkipped);
         void fillInSingleAlignmentResult(SingleAlignmentResult* result, int popularSeedsSkipped);
     };
 

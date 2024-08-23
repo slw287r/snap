@@ -48,32 +48,25 @@ inline const char *AlignmentResultToString(AlignmentResult result) {
 
 struct SingleAlignmentResult {
 	AlignmentResult status;
-
-    GenomeLocation  location;	// Aligned genome location.
-    GenomeLocation  origLocation;   // Location before seed was aligned
-    Direction       direction;	// Did we match the reverse complement? 
-    int             score;		// score of each end if matched
-    int             scorePriorToClipping;   // Score prior to soft clipping generated when a read aligns off the end of a contig
-
-    int             mapq;		// mapping quality, encoded like a Phred score (but as an integer, not ASCII Phred + 33).
-
-    int             clippingForReadAdjustment;
-
-    bool            usedAffineGapScoring;
-    int             basesClippedBefore;
-    int             basesClippedAfter;
-    int             agScore;
-
-    bool            supplementary;
-
-    int             seedOffset;
-    double          matchProbability;
-    double          probabilityAllCandidates;
-    unsigned        popularSeedsSkipped;
-    _int64          alignmentTimeInNanoseconds;    // Only filled in when the -at option is selected
-
-    static int compareByContigAndScore(const void *first, const void *second);      // qsort()-style compare routine
-    static int compareByScore(const void *first, const void *second);               // qsort()-style compare routine
+	GenomeLocation  location;       // Aligned genome location.
+	GenomeLocation  origLocation;   // Location before seed was aligned
+	Direction       direction;      // Did we match the reverse complement? 
+	int             score;          // score of each end if matched
+	int             scorePriorToClipping;   // Score prior to soft clipping generated when a read aligns off the end of a contig
+	int             mapq;           // mapping quality, encoded like a Phred score (but as an integer, not ASCII Phred + 33).
+	int             clippingForReadAdjustment;
+	bool            usedAffineGapScoring;
+	int             basesClippedBefore;
+	int             basesClippedAfter;
+	int             agScore;
+	bool            supplementary;
+	int             seedOffset;
+	double          matchProbability;
+	double          probabilityAllCandidates;
+	unsigned        popularSeedsSkipped;
+	_int64          alignmentTimeInNanoseconds;    // Only filled in when the -at option is selected
+	static int compareByContigAndScore(const void *first, const void *second);      // qsort()-style compare routine
+	static int compareByScore(const void *first, const void *second);               // qsort()-style compare routine
 };
 
 // Does an AlignmentResult represent a single location?

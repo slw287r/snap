@@ -488,7 +488,7 @@ char *pctAndPad(char * buffer, double pct, size_t desiredWidth, size_t bufferLen
     void
 AlignerContext::printStats()
 {
-    WriteStatusMessage("Total Reads    Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
+    WriteStatusMessage("Total Reads    rRNA Reads     Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
         (stats->filtered > 0) ? "Filtered               " : "",
         (stats->extraAlignments) ? "Extra Alignments  " : "",
         isPaired() ? "%Pairs    " : "   ",
@@ -517,21 +517,23 @@ AlignerContext::printStats()
     _int64 totalTime = stats->millisReading + stats->millisAligning + stats->millisWriting;
 
     /*
-                         total                                   
-                         |  single                       
-                         |  |  multi                                      
-                         |  |  |  unaligned        reads/s            
-                         |  |  |  |  too short     |  time             
-                         |  |  |  |  |  filtered   |  | %Read       
-                         |  |  |  |  |  | extra    |  | | %Align    
-                         |  |  |  |  |  | | pairs  |  | | | %Write 
-                         |  |  |  |  |  | | |      |  | | | | Ag 
-                         |  |  |  |  |  | | |      |  | | | | | AgUsed
-                         v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
+                       total
+                       |  rrna
+                       |  |  single
+                       |  |  |  multi
+                       |  |  |  |  unaligned        reads/s
+                       |  |  |  |  |  too short     |  time
+                       |  |  |  |  |  |  filtered   |  | %Read
+                       |  |  |  |  |  |  | extra    |  | | %Align
+                       |  |  |  |  |  |  | | pairs  |  | | | %Write
+                       |  |  |  |  |  |  | | |      |  | | | | Ag
+                       |  |  |  |  |  |  | | |      |  | | | | | AgUsed
+                       v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
     */
 
-    WriteStatusMessage("%s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
+    WriteStatusMessage("%s %-14lld %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
         FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
+        stats->rrnaReads,
         numPctAndPad(single, stats->singleHits, 100.0 * stats->singleHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(multi, stats->multiHits, 100.0 * stats->multiHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(unaligned, stats->notFound, 100.0 * stats->notFound / stats->totalReads, 22, strBufLen),

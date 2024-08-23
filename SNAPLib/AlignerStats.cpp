@@ -32,6 +32,7 @@ AbstractStats::~AbstractStats()
 AlignerStats::AlignerStats(AbstractStats* i_extra)
 :
     totalReads(0),
+    rrnaReads(0),
     uselessReads(0),
     singleHits(0), 
     multiHits(0),
@@ -99,6 +100,7 @@ AlignerStats::add(
 {
     AlignerStats* other = (AlignerStats*) i_other;
     totalReads += other->totalReads;
+    rrnaReads += other->rrnaReads;
     uselessReads += other->uselessReads;
     singleHits += other->singleHits;
     multiHits += other->multiHits;

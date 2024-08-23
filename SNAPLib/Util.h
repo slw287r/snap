@@ -10,6 +10,8 @@
 using std::max;
 using std::min;
 
+#define PP fprintf(stderr, "%s\t%d\t<%s>\n", __FILE__, __LINE__, __func__);
+
 //
 // General utilities.
 //

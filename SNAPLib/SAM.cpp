@@ -1963,7 +1963,7 @@ SAMFormat::writeRead(
 
     *o_addFrontClipping = 0;
 
-	if (!createSAMLine(context.genome, data, quality, MAX_READ, contigName, &contigIndex,
+    if (!createSAMLine(context.genome, data, quality, MAX_READ, contigName, &contigIndex,
         flags, positionInContig, mapQuality, matecontigName, &mateContigIndex, matePositionInContig, templateLength,
         fullLength, clippedData, clippedQuality, clippedLength, basesClippedBefore, basesClippedAfter, mateBasesClippedBefore, mateBasesClippedAfter,
         FASTQComment, FASTQCommentLength, qnameLen, read, result, genomeLocation, direction, secondaryAlignment, supplementaryAlignment, useM,
@@ -1972,16 +1972,15 @@ SAMFormat::writeRead(
     {
         return false;
     }
-
-	if (genomeLocation != InvalidGenomeLocation) {
-		cigar = computeCigarString(context.genome, lv, cigarBuf, cigarBufSize, cigarBufWithClipping, cigarBufWithClippingSize,
-			clippedData, clippedLength, basesClippedBefore, extraBasesClippedBefore, basesClippedAfter, 
-			read->getOriginalFrontHardClipping(), read->getOriginalBackHardClipping(), genomeLocation, direction, useM,
-			&editDistance, o_addFrontClipping, &refSpanFromCigar);
-		if (*o_addFrontClipping != 0) {
-			return false;
-		}
-	}
+    if (genomeLocation != InvalidGenomeLocation) {
+        cigar = computeCigarString(context.genome, lv, cigarBuf, cigarBufSize, cigarBufWithClipping, cigarBufWithClippingSize,
+            clippedData, clippedLength, basesClippedBefore, extraBasesClippedBefore, basesClippedAfter, 
+            read->getOriginalFrontHardClipping(), read->getOriginalBackHardClipping(), genomeLocation, direction, useM,
+            &editDistance, o_addFrontClipping, &refSpanFromCigar);
+        if (*o_addFrontClipping != 0) {
+            return false;
+        }
+    }
 
 
     // Write the SAM entry, which requires the following fields:

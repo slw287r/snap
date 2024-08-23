@@ -59,10 +59,10 @@ BaseAligner::BaseAligner(
     DisabledOptimizations    i_disabledOptimizations,
     bool                     i_useAffineGap,
     bool                     i_ignoreAlignmentAdjustmentsForOm,
-	bool                     i_altAwareness,
+    bool                     i_altAwareness,
     bool                     i_emitALTAlignments,
     int                      i_maxScoreGapToPreferNonAltAlignment,
-	int                      i_maxSecondaryAlignmentsPerContig,
+    int                      i_maxSecondaryAlignmentsPerContig,
     LandauVishkin<1>        *i_landauVishkin,
     LandauVishkin<-1>       *i_reverseLandauVishkin,
     unsigned                 i_matchReward,
@@ -78,11 +78,11 @@ BaseAligner::BaseAligner(
         maxSeedCoverage(i_maxSeedCoverage), readId(-1), extraSearchDepth(i_extraSearchDepth),
         explorePopularSeeds(false), stopOnFirstHit(false), stats(i_stats), 
         disabledOptimizations(i_disabledOptimizations),
-		useAffineGap(i_useAffineGap), matchReward(i_matchReward), subPenalty(i_subPenalty), 
+        useAffineGap(i_useAffineGap), matchReward(i_matchReward), subPenalty(i_subPenalty), 
         gapOpenPenalty(i_gapOpenPenalty), gapExtendPenalty(i_gapExtendPenalty),
         minWeightToCheck(max(1u, i_minWeightToCheck)), maxSecondaryAlignmentsPerContig(i_maxSecondaryAlignmentsPerContig),
         alignmentAdjuster(i_genomeIndex->getGenome()), ignoreAlignmentAdjustmentsForOm(i_ignoreAlignmentAdjustmentsForOm),
-		altAwareness(i_altAwareness), emitALTAlignments(i_emitALTAlignments),
+        altAwareness(i_altAwareness), emitALTAlignments(i_emitALTAlignments),
         maxScoreGapToPreferNonAltAlignment(i_maxScoreGapToPreferNonAltAlignment)
 /*++
 
@@ -111,7 +111,7 @@ Arguments:
     i_subPenalty        - affine gap score for a substitution
     i_gapOpenPenalty    - affine gap cost for opening a gap (indel)
     i_gapExtendPenalty  - affine gap cost for extending a gap (indel)
-	i_altAwareness      - treat reads mapped to ALT contigs differently than normal ones
+    i_altAwareness      - treat reads mapped to ALT contigs differently than normal ones
     i_stats             - an object into which we report out statistics
     allocator           - an allocator that's used to allocate our local memory.  This is useful for TLB optimization.  If this is supplied, the caller
                           is responsible for deallocation, we'll not deallocate any dynamic memory in our destructor.
@@ -1351,7 +1351,7 @@ Return Value:
 
                     if (elementToScore->bestScore < score || (elementToScore->bestScore == score && matchProbability <= elementToScore->matchProbabilityForBestScore)) {
                     // if (matchProbability <= elementToScore->matchProbabilityForBestScore) {
-						//
+                        //
                         // This is a no better mapping than something nearby that we already tried.  Just ignore it.
                         //
                         continue;
@@ -1410,7 +1410,6 @@ Return Value:
                             //
                             continue;
                         }
-                        
                         scoresForAllAlignments.updateProbabilitiesForNearbyMatch(nearbyElement->matchProbabilityForBestScore);
                         if (genomeLocationIsNonALT) {
                             scoresForNonAltAlignments.updateProbabilitiesForNearbyMatch(nearbyElement->matchProbabilityForBestScore);
@@ -1433,7 +1432,6 @@ Return Value:
                                                 secondaryResults, nSecondaryResults, secondaryResultBufferSize,
                                                 anyNearbyCandidatesAlreadyScored, maxEditDistanceForSecondaryResults, overflowedSecondaryBuffer,
                                                 maxCandidatesForAffineGapBufferSize, nCandidatesForAffineGap, candidatesForAffineGap, extraSearchDepth);
-                    
                     if (genomeLocationIsNonALT) {
                         scoresForNonAltAlignments.updateBestScore(genomeLocation, origGenomeLocation, score, useAffineGap, agScore, matchProbability, lvScoresAfterBestFound, elementToScore,
                             secondaryResults, nSecondaryResults, secondaryResultBufferSize,
@@ -1471,8 +1469,6 @@ Return Value:
                                                     NULL, 0, 0, anyNearbyCandidatesAlreadyScored, -1, NULL, 0, NULL, NULL, extraSearchDepth);
 
                 }
-                                        
-
                 if (stopOnFirstHit && ((scoresForAllAlignments.bestScore <= maxK) || (useHamming && scoresForAllAlignments.bestScore != UnusedScoreValue))) {
                     // The user just wanted to find reads that match the database within some distance, but doesn't
                     // care about the best alignment. Stop now but mark the result as MultipleHits because we're not
@@ -1480,9 +1476,10 @@ Return Value:
                     // explored enough to compute it.
                     primaryResult->status = MultipleHits;
                     primaryResult->mapq = 0;
+                    // fill genome location for rrna reads counting
+                    (altAwareness ? scoresForNonAltAlignments : scoresForAllAlignments).fillInSingleAlignmentLocation(primaryResult, popularSeedsSkipped);
                     return true;
                 }
-
                 // Taken from intersecting paired-end aligner.
                 // Assuming maximum probability among unseen candidates is 1 and MAPQ < 1, find probability of
                 // all candidates for which we can terminate early without exploring any more MAPQ < 1 alignments
@@ -2276,6 +2273,10 @@ void BaseAligner::ScoreSet::updateBestScore(
         }
     }
 } // updateBestAndSecondBestScores
+
+void BaseAligner::ScoreSet::fillInSingleAlignmentLocation(SingleAlignmentResult* result, int popularSeedsSkipped) {
+    result->location = bestScoreGenomeLocation;
+} // ScoreSet::fillInSingleAlignmentLocation
 
 void BaseAligner::ScoreSet::fillInSingleAlignmentResult(SingleAlignmentResult* result, int popularSeedsSkipped) {
     result->agScore = bestScoreAGScore;

@@ -168,12 +168,13 @@ SimpleReadWriter::checkIfTooSlow()
 
     bool
 SimpleReadWriter::writeReads(
-    const ReaderContext& context, 
-    Read *read, 
-    SingleAlignmentResult *results, 
+    const ReaderContext& context,
+    Read *read,
+    SingleAlignmentResult *results,
     _int64 nResults,
     bool firstIsPrimary,
-    bool useAffineGap)
+    bool useAffineGap
+	)
 {
     char* buffer;
     size_t size;
@@ -220,14 +221,14 @@ SimpleReadWriter::writeReads(
         used = 0;
 
         for (_int64 whichResult = 0; whichResult < nResults; whichResult++) {
-             int addFrontClipping = 0;
+            int addFrontClipping = 0;
             read->setAdditionalFrontClipping(results[whichResult].clippingForReadAdjustment);
-            
+
             int cumulativeAddFrontClipping = 0, cumulativeAddBackClipping = 0;
             finalLocations[whichResult] = results[whichResult].location;
 
             unsigned nAdjustments = 0;
-
+            // stopOnFirstHit (via -f) leaves score to the default value 0xffff and hence > 0
             if (useAffineGap && (results[whichResult].usedAffineGapScoring || results[whichResult].score > 0)) {
                 while (!format->writeRead(context, &agc, buffer + used, size - used, &usedBuffer[whichResult], read->getIdLength(), read, results[whichResult].status,
                     results[whichResult].mapq, finalLocations[whichResult], results[whichResult].direction, (whichResult > 0) || !firstIsPrimary, results[whichResult].supplementary, &addFrontClipping,

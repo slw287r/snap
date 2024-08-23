@@ -36,6 +36,7 @@ Revision History:
 #include "Util.h"
 #include "SingleAligner.h"
 #include "MultiInputReadSupplier.h"
+#include "T2TrRNA.h"
 
 using namespace std;
 using util::stringEndsWith;
@@ -86,11 +87,11 @@ void SingleAlignerContext::runIterationThread()
 
 
 }
-    
+
     void
 SingleAlignerContext::runIterationThreadImpl(Read *& read)
 {
-	PreventMachineHibernationWhileThisThreadIsAlive();
+    PreventMachineHibernationWhileThisThreadIsAlive();
 
     ReadSupplier *supplier = readSupplierGenerator->generateNewReadSupplier();
     if (NULL == supplier) {
@@ -99,14 +100,15 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         //
         return;
     }
-	if (extension->runIterationThread(supplier, this)) {
-		delete supplier;
-		return;
-	}
+    if (extension->runIterationThread(supplier, this)) {
+        delete supplier;
+        return;
+    }
     if (index == NULL) {
         // no alignment, just input/output
         while (NULL != (read = supplier->getNextRead())) {
             stats->totalReads++;
+            stats->rrnaReads = 0;
             SingleAlignmentResult result;
             result.status = NotFound;
             result.direction = FORWARD;
@@ -144,7 +146,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
 
     BigAllocator *allocator = new BigAllocator(BaseAligner::getBigAllocatorReservation(index, true, maxHits, maxReadSize, index->getSeedLength(), numSeedsFromCommandLine, seedCoverage, maxSecondaryAlignmentsPerContig, extraSearchDepth) 
         + alignmentResultBufferSize, 16); // FIXME: Used larger allocation granularity for __m128i that needs to be aligned at 16 byte boundaries
-   
+
     BaseAligner *aligner = new (allocator) BaseAligner(
             index,
             maxHits,
@@ -152,12 +154,12 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             maxReadSize,
             numSeedsFromCommandLine,
             seedCoverage,
-			minWeightToCheck,
+            minWeightToCheck,
             extraSearchDepth,
             disabledOptimizations,
             useAffineGap,
             ignoreAlignmentAdjustmentForOm,
-			altAwareness,
+            altAwareness,
             emitALTAlignments,
             maxScoreGapToPreferNonALTAlignment,
             maxSecondaryAlignmentsPerContig,
@@ -173,7 +175,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             allocator);
 
     alignmentResults = (SingleAlignmentResult *)allocator->allocate(alignmentResultBufferSize);
- 
+
     allocator->checkCanaries();
 
     aligner->setExplorePopularSeeds(options->explorePopularSeeds);
@@ -326,7 +328,19 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             startTime = timeInMillis();
             stats->millisWriting = (startTime - alignFinishedTime);
         }
-
+        // count reads falling into rRNA regions
+        _int64 loc = alignmentResults[0].location;
+        if (loc >= T2T_RRNA_RANGE[0][0] && loc <= T2T_RRNA_RANGE[T2T_RRNA_NROW - 1][1])
+        {
+            for (int i = 0; i < T2T_RRNA_NROW; ++i)
+            {
+                if (loc >= T2T_RRNA_RANGE[i][0] && loc <= T2T_RRNA_RANGE[i][1])
+                {
+                    stats->rrnaReads++;
+                    break;
+                }
+            }
+        }
         if (containsPrimary) {
             updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);
         } else {
