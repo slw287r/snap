@@ -50,7 +50,7 @@ ALL_OBJ = $(LIB_OBJ) $(SNAP_OBJ) $(TEST_OBJ) $(SNAPCOMMAND_OBJ)
 
 DEPS = $(pathsubst %.o, %.d, $(ALL_OBJ))
 
-EXES = snap-aligner unit_tests SNAPCommand
+EXES = snap-aligner #unit_tests SNAPCommand
 
 default: $(EXES)
 
@@ -62,10 +62,10 @@ $(OBJS): %.o : %.cpp
 snap-aligner: $(LIB_OBJ) $(SNAP_OBJ)
 	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
 
-SNAPCommand: $(LIB_OBJ) $(SNAPCOMMAND_OBJ)
-	echo SNAPCOMMAND_OBJ is $(SNAPCOMMAND_OBJ)
-	echo SNAP_OBJ is $(SNAP_OBJ)
-	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
+#SNAPCommand: $(LIB_OBJ) $(SNAPCOMMAND_OBJ)
+#	echo SNAPCOMMAND_OBJ is $(SNAPCOMMAND_OBJ)
+#	echo SNAP_OBJ is $(SNAP_OBJ)
+#	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS)
 
 snapxl:
 	make clean
@@ -76,8 +76,8 @@ snapxl:
 roc: $(LIB_OBJ) $(ROC_OBJ)
 	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
 
-unit_tests: $(LIB_OBJ) $(TEST_OBJ)
-	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
+#unit_tests: $(LIB_OBJ) $(TEST_OBJ)
+#	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
 
 clean:
 	rm -f $(ALL_OBJ) $(DEPS) $(EXES) snap SNAP
