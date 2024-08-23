@@ -45,7 +45,7 @@ static void usage()
 		"Usage: snap-aligner <command> [<options>]\n"
 		"Commands:\n"
 		"   index    build a genome index\n"
-		"   single   align single-end reads\n"
+		" \e[31m*\e[0m single   align single-end reads\n"
 		"   paired   align paired-end reads\n"
 		"   daemon   run in daemon mode--accept commands remotely\n"
 #if HIT_DEPTH_COUNTING
@@ -53,8 +53,10 @@ static void usage()
 		"            that uniquely identifies a correct alignment\n"
 		"            for every locus in a set of contigs\n"
 #endif // HIT_DEPTH_COUNTING
-
-		"Type a command without arguments to see its help.\n");
+		"Type a command without arguments to see its help.\n\n"
+		"\e[31m*\e[0m \e[3mrRNA reads mapped to T2T reference (v2, chr1 length: 248387328 bp)\n"
+		"  are counted for capture efficiency calculation. Please ignore the\n"
+		"  rRNA reads number for non-T2T references.\e[0m\n\n");
 }
 
 void ProcessNonDaemonCommands(int argc, const char **argv) {
