@@ -1,6 +1,10 @@
+ARCH := $(shell arch)
 ifndef CXXFLAGS
-  CXXFLAGS = -O3 -Wno-format -std=c++98
-  #CXXFLAGS = -g -O0 -Wno-format -std=c++98
+  CXXFLAGS = -O3 -Wno-format -std=c++11
+endif
+
+ifeq ($(ARCH),x86_64)
+  CXXFLAGS += -static
 endif
 
 CXXFLAGS += -MMD -ISNAPLib -msse
