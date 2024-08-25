@@ -327,7 +327,8 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             stats->millisWriting = (startTime - alignFinishedTime);
         }
         // count reads falling into rRNA regions
-        if (rrnapos.find(alignmentResults[0].location) != rrnapos.end())
+        if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
+                (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
             stats->rrnaReads++;
         if (containsPrimary) {
             updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);

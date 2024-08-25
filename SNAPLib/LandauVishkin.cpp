@@ -99,7 +99,7 @@ LandauVishkinWithCigar::writeCigar(char** o_buf, int* o_buflen, int count, char 
         }
         int written = snprintf(*o_buf, *o_buflen, "%d%c", count, code);
         if (written > *o_buflen - 1) {
-            *o_buf = '\0';
+            **o_buf = '\0';
             return false;
         }
         else {

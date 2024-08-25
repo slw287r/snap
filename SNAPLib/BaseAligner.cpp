@@ -2277,7 +2277,9 @@ void BaseAligner::ScoreSet::updateBestScore(
 
 void BaseAligner::ScoreSet::fillInSingleAlignmentLocation(SingleAlignmentResult* result, int popularSeedsSkipped) {
     result->location = bestScoreGenomeLocation;
-} // ScoreSet::fillInSingleAlignmentLocation
+    result->basesClippedAfter = bestScoreBasesClippedAfter;
+    result->basesClippedBefore = bestScoreBasesClippedBefore;
+}
 
 void BaseAligner::ScoreSet::fillInSingleAlignmentResult(SingleAlignmentResult* result, int popularSeedsSkipped) {
     result->agScore = bestScoreAGScore;

@@ -1061,7 +1061,7 @@ BAMFormat::writePairs(
     OriginalContigNum contigIndex[NUM_READS_PER_PAIR] = {OriginalContigNum(-1), OriginalContigNum(-1)};
     GenomeDistance positionInContig[NUM_READS_PER_PAIR] = {0, 0};
     const char *mateContigName[NUM_READS_PER_PAIR] = {"*", "*"};
-    OriginalContigNum mateContigIndex[NUM_READS_PER_PAIR] = {-1, -1};
+    OriginalContigNum mateContigIndex[NUM_READS_PER_PAIR] = {0, 0};
     GenomeDistance matePositionInContig[NUM_READS_PER_PAIR] = {0, 0};
     _int64 templateLength[NUM_READS_PER_PAIR] = {0, 0};
 
