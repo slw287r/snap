@@ -29,7 +29,7 @@ Revision History:
 #include "Genome.h"
 #include "Read.h"
 
-#define MAX_ALLOWED_CLIPS 10
+#define MAX_ALLOWED_CLIPS 2
 
 #if INSTRUMENTATION_FOR_PAPER
 
