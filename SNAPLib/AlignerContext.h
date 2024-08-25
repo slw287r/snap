@@ -74,6 +74,9 @@ public:
     // initialize from options
     virtual bool initialize();
 
+    // rrna positions set
+    virtual std::unordered_set<_int64> rrnaPosSet();
+
     // new stats object
     virtual AlignerStats* newStats() = 0;
     
@@ -97,6 +100,7 @@ public:
     _int64                               alignStart;
     _int64                               alignTime;
     AlignerOptions                      *options;
+    std::unordered_set<_int64>           rrnapos;
     AlignerStats                        *stats;
     AlignerExtension                    *extension;
     unsigned                             maxDist;
@@ -115,13 +119,13 @@ public:
     DisabledOptimizations                disabledOptimizations;
     bool                                 useAffineGap;
     bool                                 ignoreAlignmentAdjustmentForOm;
-	bool								 altAwareness;
+    bool                                 altAwareness;
     bool                                 emitALTAlignments;
     int                                  maxSecondaryAlignmentAdditionalEditDistance;
-	int									 maxSecondaryAlignments;
+    int                                  maxSecondaryAlignments;
     int                                  maxSecondaryAlignmentsPerContig;
     int                                  maxScoreGapToPreferNonALTAlignment;
-	unsigned							 minReadLength;
+    unsigned                             minReadLength;
     unsigned                             matchReward;
     unsigned                             subPenalty;
     unsigned                             gapOpenPenalty;

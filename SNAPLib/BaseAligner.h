@@ -26,7 +26,6 @@ Revision History:
 --*/
 
 #pragma once
-
 #include "AlignmentResult.h"
 #include "LandauVishkin.h"
 #include "AffineGap.h"
@@ -38,6 +37,7 @@ Revision History:
 #include "GenomeIndex.h"
 #include "AlignmentAdjuster.h"
 #include "AlignerOptions.h"
+
 
 extern bool doAlignerPrefetch;
 
@@ -54,7 +54,7 @@ public:
         unsigned                 i_minWeightToCheck,
         unsigned                 i_extraSearchDepth,
         DisabledOptimizations    i_disabledOptimizations,
-        bool                     i_useAffineGap,           
+        bool                     i_useAffineGap,
         bool                     i_ignoreAlignmentAdjustmentsForOm,
         bool                     i_altAwareness,
         bool                     i_emitALTAlignments,
@@ -471,6 +471,7 @@ private:
     bool stopOnFirstHit;      // Whether to stop the first time a location matches with less than
                               // maxK edit distance (useful when using SNAP for filtering only).
 
+	std::unordered_set<_int64> rrnaPosSet;
     AlignerStats *stats;
 
     unsigned *hitCountByExtraSearchDepth;   // How many hits at each depth bigger than the current best edit distance.

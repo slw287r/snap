@@ -93,6 +93,7 @@ Routine Description:
 Arguments:
 
     i_genomeIndex       - The index against which to do the alignments
+    i_rrnaPosSet        - The T2T reference's rRNA postions set
     i_maxHitsToConsider - The maximum number of hits to use from a seed lookup.  Any lookups that return more
                           than this are ignored.
     i_maxK              - The largest string difference to consider for any comparison.

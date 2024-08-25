@@ -36,6 +36,7 @@ Revision History:
 #include "Error.h"
 #include "Util.h"
 #include "CommandProcessor.h"
+#include "T2TrRNA.h"
 
 using std::max;
 using std::min;
@@ -108,19 +109,19 @@ void AlignerContext::runAlignment(int argc, const char **argv, const char *versi
     } // i
 #endif // INSTRUMENTATION_FOR_PAPER
 
-	
-	if (!initialize()) {
-		return;
-	}
+
+    if (!initialize()) {
+        return;
+    }
     extension->initialize();
-    
+
     if (! extension->skipAlignment()) {
         WriteStatusMessage("Aligning.\n");
 
         beginIteration();
 
         runTask();
-            
+
         finishIteration();
 
         printStats();
@@ -247,6 +248,15 @@ AlignerContext::finishThread(AlignerContext* common)
     delete extension;
     extension = NULL;
 }
+	std::unordered_set<_int64>
+AlignerContext::rrnaPosSet()
+{
+	std::unordered_set<_int64> newSet;
+	for (unsigned i = 0; i < T2T_RRNA_NROW; ++i)
+		for (_int64 j = T2T_RRNA_RANGE[i][0]; j <= T2T_RRNA_RANGE[i][1]; ++j)
+			newSet.insert(j);
+	return newSet;
+}
 
     bool
 AlignerContext::initialize()
@@ -266,7 +276,7 @@ AlignerContext::initialize()
             index = GenomeIndex::loadFromDirectory((char*) options->indexDir, options->mapIndex, options->prefetchIndex);
             if (index == NULL) {
                 WriteErrorMessage("Index load failed, aborting.\n");
-				soft_exit(1);
+                soft_exit(1);
             }
             g_index = index;
 
@@ -277,26 +287,26 @@ AlignerContext::initialize()
              WriteStatusMessage("%llds.  %s bases, seed size %d.\n",
                     loadTime / 1000, FormatUIntWithCommas(index->getGenome()->getCountOfBases(), basesBuffer, basesBufferSize), index->getSeedLength());
 
-			 if (index->getMajorVersion() < 5 || (index->getMajorVersion() == 5 && index->getMinorVersion() == 0)) {
-				 WriteErrorMessage("WARNING: The version of the index you're using was built with an earlier version of SNAP and will result in Ns in the reference NOT matching Ns in reads.\n         If you do not want this behavior, rebuild the index.\n");
-			 }
+             if (index->getMajorVersion() < 5 || (index->getMajorVersion() == 5 && index->getMinorVersion() == 0)) {
+                 WriteErrorMessage("WARNING: The version of the index you're using was built with an earlier version of SNAP and will result in Ns in the reference NOT matching Ns in reads.\n         If you do not want this behavior, rebuild the index.\n");
+             }
          } else {
             WriteStatusMessage("no alignment, input/output only\n");
         }
     } else {
         index = g_index;
     }
-
+    rrnapos = rrnaPosSet();
     maxHits_ = options->maxHits;
     maxDist_ = options->maxDist;
     maxDistForIndels_ = options->maxDistForIndels;
     extraSearchDepth = options->extraSearchDepth;
     disabledOptimizations = options->disabledOptimizations;
     ignoreAlignmentAdjustmentForOm = options->ignoreAlignmentAdjustmentsForOm;
-	altAwareness = options->altAwareness;
+    altAwareness = options->altAwareness;
     emitALTAlignments = options->emitALTAlignments;
     maxSecondaryAlignmentAdditionalEditDistance = options->maxSecondaryAlignmentAdditionalEditDistance;
-	maxSecondaryAlignments = options->maxSecondaryAlignments;
+    maxSecondaryAlignments = options->maxSecondaryAlignments;
     maxSecondaryAlignmentsPerContig = options->maxSecondaryAlignmentsPerContig;
     maxScoreGapToPreferNonALTAlignment = options->maxScoreGapToPreferNonALTAlignment;
     useAffineGap = options->useAffineGap;
@@ -312,18 +322,18 @@ AlignerContext::initialize()
         WriteErrorMessage("You set -omax and/or -mpc without setting -om.  They're meaningful only in the context of -om, so you probably didn't really mean to do that.\n");
         soft_exit(1);
     }
-	minReadLength = options->minReadLength;
+    minReadLength = options->minReadLength;
 
-	if (index != NULL && (int)minReadLength < index->getSeedLength()) {
-		WriteErrorMessage("The min read length (%d) must be at least the seed length (%d), or there's no hope of aligning reads that short.\n", minReadLength, index->getSeedLength());
-		soft_exit(1);
-	}
+    if (index != NULL && (int)minReadLength < index->getSeedLength()) {
+        WriteErrorMessage("The min read length (%d) must be at least the seed length (%d), or there's no hope of aligning reads that short.\n", minReadLength, index->getSeedLength());
+        soft_exit(1);
+    }
 
     if (options->perfFileName != NULL) {
         perfFile = fopen(options->perfFileName,"a");
         if (NULL == perfFile) {
             WriteErrorMessage("Unable to open perf file '%s'\n", options->perfFileName);
-			soft_exit(1);
+            soft_exit(1);
         }
     }
 

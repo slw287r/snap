@@ -1,3 +1,4 @@
+#pragma once
 #define T2T_RRNA_NROW 37
 
 _int64 T2T_RRNA_RANGE[37][2] = {

@@ -36,7 +36,6 @@ Revision History:
 #include "Util.h"
 #include "SingleAligner.h"
 #include "MultiInputReadSupplier.h"
-#include "T2TrRNA.h"
 
 using namespace std;
 using util::stringEndsWith;
@@ -45,7 +44,6 @@ SingleAlignerContext::SingleAlignerContext(AlignerExtension* i_extension)
     : AlignerContext(0, NULL, NULL, i_extension)
 {
 }
-
 
     AlignerStats*
 SingleAlignerContext::newStats()
@@ -329,18 +327,8 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             stats->millisWriting = (startTime - alignFinishedTime);
         }
         // count reads falling into rRNA regions
-        _int64 loc = alignmentResults[0].location;
-        if (loc >= T2T_RRNA_RANGE[0][0] && loc <= T2T_RRNA_RANGE[T2T_RRNA_NROW - 1][1])
-        {
-            for (int i = 0; i < T2T_RRNA_NROW; ++i)
-            {
-                if (loc >= T2T_RRNA_RANGE[i][0] && loc <= T2T_RRNA_RANGE[i][1])
-                {
-                    stats->rrnaReads++;
-                    break;
-                }
-            }
-        }
+        if (rrnapos.find(alignmentResults[0].location) != rrnapos.end())
+            stats->rrnaReads++;
         if (containsPrimary) {
             updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);
         } else {
@@ -435,5 +423,3 @@ SingleAlignerContext::typeSpecificNextIteration()
     delete readSupplierGenerator;
     readSupplierGenerator = NULL;
 }
-
- 

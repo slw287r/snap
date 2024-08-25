@@ -34,16 +34,16 @@ class SingleAlignerContext : public AlignerContext
 public:
 
     SingleAlignerContext(AlignerExtension* i_extension = NULL);
-    
 
 protected:
 
     // AlignerContext overrides
+    //virtual std::unordered_set<_int64> rrnaPosSet();
 
     virtual AlignerStats* newStats();
-    
+
     virtual void runTask();
-    
+
     virtual void runIterationThread();
 
     virtual void typeSpecificBeginIteration();
