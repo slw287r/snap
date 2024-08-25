@@ -327,7 +327,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             stats->millisWriting = (startTime - alignFinishedTime);
         }
 		// debug base clipped
-		fprintf(stderr, "%s\t%d\t%d\n", read->getId(), alignmentResults[0].basesClippedBefore, alignmentResults[0].basesClippedAfter);
+		fprintf(stderr, ">%d\t%d\n", alignmentResults[0].basesClippedBefore, alignmentResults[0].basesClippedAfter);
         // count reads falling into rRNA regions
         if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
                 (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
