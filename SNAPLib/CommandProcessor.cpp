@@ -37,12 +37,10 @@ Revision History:
 #include "Compat.h"
 #include "HitDepth.h"
 
-const char *SNAP_VERSION = "2.0.3a";
-
 static void usage()
 {
 	WriteErrorMessage(
-		"Usage: snap-aligner <command> [<options>]\n"
+		"Usage: \e[1;31m%s\e[0;0m <command> [<options>]\n"
 		"Commands:\n"
 		"   index    build a genome index\n"
 		" \e[31m*\e[0m single   align single-end reads\n"
@@ -56,7 +54,10 @@ static void usage()
 		"Type a command without arguments to see its help.\n\n"
 		"\e[31m*\e[0m \e[3mrRNA reads mapped to T2T reference (v2, chr1 length: 248387328 bp)\n"
 		"  are counted for capture efficiency calculation. Please ignore the\n"
-		"  rRNA reads number for non-T2T references.\e[0m\n\n");
+		"  rRNA reads number for non-T2T references. Do a dummy run to get the\n"
+		"  chr1 length of the snap db via:\e[0m\n\n"
+		"  %s single /path/to/dbdir -fastq /dev/null >a.sam\n\n",
+		__progname, __progname);
 }
 
 void ProcessNonDaemonCommands(int argc, const char **argv) {
@@ -178,7 +179,7 @@ void RunDaemonMode(int argc, const char **argv)
 
 void ProcessTopLevelCommands(int argc, const char **argv)
 {
-	fprintf(stderr, "Welcome to SNAP version %s.\n\n", SNAP_VERSION);       // Can't use WriteStatusMessage, because we haven't parsed args yet to determine if -hdp is specified.  Just stick with stderr.
+	fprintf(stderr, "Welcome to SNAP version %s (%s).\n\n", SNAP_VERSION, BRANCH_COMMIT);       // Can't use WriteStatusMessage, because we haven't parsed args yet to determine if -hdp is specified.  Just stick with stderr.
 
 #if TIME_HISTOGRAM
 	fprintf(stderr, "TIME_HISTOGRAM is compiled in.\n");

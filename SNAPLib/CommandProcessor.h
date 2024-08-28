@@ -22,6 +22,9 @@ Revision History:
 
 #pragma once
 #include "Compat.h"
+#include "version.h"
+
+extern const char *__progname;
 
 extern void ProcessTopLevelCommands(int argc, const char **argv);
 
