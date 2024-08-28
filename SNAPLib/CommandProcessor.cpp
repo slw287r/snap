@@ -93,7 +93,13 @@ void ProcessNonDaemonCommands(int argc, const char **argv) {
 		CountHitDepth(argc - 1, argv + 1);
 #endif // HIT_DEPTH_COUNTING
 
-	} else {
+	} else if (!strncmp(argv[1], "-v", 2) || !strncmp(argv[1], "--v", 3))
+	{
+		fprintf(stderr, "%s (%s)\n", SNAP_VERSION, BRANCH_COMMIT);
+		return;
+	} else if (!strncmp(argv[1], "-h", 2) || !strncmp(argv[1], "--h", 3))
+		usage();
+	else {
 		WriteErrorMessage("Invalid command: %s\n\n", argv[1]);
 		usage();
 	}
@@ -179,7 +185,8 @@ void RunDaemonMode(int argc, const char **argv)
 
 void ProcessTopLevelCommands(int argc, const char **argv)
 {
-	fprintf(stderr, "Welcome to SNAP version %s (%s).\n\n", SNAP_VERSION, BRANCH_COMMIT);       // Can't use WriteStatusMessage, because we haven't parsed args yet to determine if -hdp is specified.  Just stick with stderr.
+	if (argc == 1 || (strncmp(argv[1], "-v", 2) && strncmp(argv[1], "--v", 3)))
+		fprintf(stderr, "Welcome to SNAP version %s (%s).\n\n", SNAP_VERSION, BRANCH_COMMIT);       // Can't use WriteStatusMessage, because we haven't parsed args yet to determine if -hdp is specified.  Just stick with stderr.
 
 #if TIME_HISTOGRAM
 	fprintf(stderr, "TIME_HISTOGRAM is compiled in.\n");
