@@ -33,6 +33,8 @@ AlignerStats::AlignerStats(AbstractStats* i_extra)
 :
     totalReads(0),
     rrnaReads(0),
+    hskReads(0),
+    hskBases(0),
     uselessReads(0),
     singleHits(0), 
     multiHits(0),
@@ -101,6 +103,8 @@ AlignerStats::add(
     AlignerStats* other = (AlignerStats*) i_other;
     totalReads += other->totalReads;
     rrnaReads += other->rrnaReads;
+    hskReads += other->hskReads;
+    hskBases += other->hskBases;
     uselessReads += other->uselessReads;
     singleHits += other->singleHits;
     multiHits += other->multiHits;
@@ -117,6 +121,8 @@ AlignerStats::add(
     agForcedSingleEndAlignment += other->agForcedSingleEndAlignment;
     agUsedSingleEndAlignment += other->agUsedSingleEndAlignment;
 
+    for (auto it = other->hskcov.begin(); it != other->hskcov.end(); it++) 
+        hskcov.insert(*it);
 
     if (extra != NULL && other->extra != NULL) {
         extra->add(other->extra);

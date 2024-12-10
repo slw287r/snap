@@ -77,6 +77,10 @@ public:
     // rrna positions set
     virtual std::unordered_set<_int64> rrnaPosSet();
 
+    // hsk positions set
+    virtual std::unordered_set<_int64> hskPosSet();
+    virtual std::unordered_set<_int64> hskCovSet();
+
     // new stats object
     virtual AlignerStats* newStats() = 0;
     
@@ -101,6 +105,7 @@ public:
     _int64                               alignTime;
     AlignerOptions                      *options;
     std::unordered_set<_int64>           rrnapos;
+    std::unordered_set<_int64>           hskpos;
     AlignerStats                        *stats;
     AlignerExtension                    *extension;
     unsigned                             maxDist;

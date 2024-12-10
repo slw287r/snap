@@ -46,6 +46,9 @@ struct AlignerStats : public AbstractStats
 
     _int64 totalReads;
     _int64 rrnaReads;
+    _int64 hskReads;
+    _int64 hskBases;
+    std::unordered_set<_int64> hskcov;
     _int64 uselessReads;    // Too short or too many Ns, so unalignable
     _int64 singleHits;
     _int64 multiHits;

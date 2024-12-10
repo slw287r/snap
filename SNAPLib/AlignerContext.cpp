@@ -88,13 +88,13 @@ void AlignerContext::runAlignment(int argc, const char **argv, const char *versi
 {
     options = parseOptions(argc, argv, version, argsConsumed, isPaired());
 
-	if (NULL == options) {	// Didn't parse correctly
-		*argsConsumed = argc;
-		return;
-	}
+    if (NULL == options) { // Didn't parse correctly
+        *argsConsumed = argc;
+        return;
+    }
 
 #ifdef _MSC_VER
-	useTimingBarrier = options->useTimingBarrier;
+    useTimingBarrier = options->useTimingBarrier;
 #endif
 
 #if INSTRUMENTATION_FOR_PAPER
@@ -248,14 +248,32 @@ AlignerContext::finishThread(AlignerContext* common)
     delete extension;
     extension = NULL;
 }
-	std::unordered_set<_int64>
+
+    std::unordered_set<_int64>
 AlignerContext::rrnaPosSet()
 {
-	std::unordered_set<_int64> newSet;
-	for (unsigned i = 0; i < T2T_RRNA_NROW; ++i)
-		for (_int64 j = T2T_RRNA_RANGE[i][0]; j <= T2T_RRNA_RANGE[i][1]; ++j)
-			newSet.insert(j);
-	return newSet;
+    std::unordered_set<_int64> newSet;
+    for (unsigned i = 0; i < T2T_RRNA_NROW; ++i)
+        for (_int64 j = T2T_RRNA_RANGE[i][0]; j <= T2T_RRNA_RANGE[i][1]; ++j)
+            newSet.insert(j);
+    return newSet;
+}
+
+    std::unordered_set<_int64>
+AlignerContext::hskPosSet()
+{
+    std::unordered_set<_int64> newSet;
+    for (unsigned i = 0; i < T2T_HSK_NROW; ++i)
+        for (_int64 j = T2T_HSK_RANGE[i][0]; j <= T2T_HSK_RANGE[i][1]; ++j)
+            newSet.insert(j);
+    return newSet;
+}
+
+    std::unordered_set<_int64>
+AlignerContext::hskCovSet()
+{
+    std::unordered_set<_int64> newSet;
+    return newSet;
 }
 
     bool
@@ -297,6 +315,7 @@ AlignerContext::initialize()
         index = g_index;
     }
     rrnapos = rrnaPosSet();
+    hskpos = hskPosSet();
     maxHits_ = options->maxHits;
     maxDist_ = options->maxDist;
     maxDistForIndels_ = options->maxDistForIndels;
@@ -446,32 +465,32 @@ AlignerContext::nextIteration()
 //
 char *numPctAndPad(char *buffer, _uint64 num, double pct, size_t desiredWidth, size_t bufferLen)
 {
-	_ASSERT(desiredWidth + 1 < bufferLen);	// < to leave room for trailing null.
+    _ASSERT(desiredWidth + 1 < bufferLen); // < to leave room for trailing null.
 
-	FormatUIntWithCommas(num, buffer, bufferLen);
-	const size_t percentageBufferSize = 100;	// Plenty big enough for any value
-	char percentageBuffer[percentageBufferSize];
+    FormatUIntWithCommas(num, buffer, bufferLen);
+    const size_t percentageBufferSize = 100; // Plenty big enough for any value
+    char percentageBuffer[percentageBufferSize];
 
-	sprintf(percentageBuffer, " (%.02f%%)", pct);
-	if (strlen(percentageBuffer) + strlen(buffer) >= bufferLen || desiredWidth >= bufferLen) { // >= accounts for terminating null
-		WriteErrorMessage("numPctAndPad: overflowed output buffer\n");
+    sprintf(percentageBuffer, " (%.02f%%)", pct);
+    if (strlen(percentageBuffer) + strlen(buffer) >= bufferLen || desiredWidth >= bufferLen) { // >= accounts for terminating null
+        WriteErrorMessage("numPctAndPad: overflowed output buffer\n");
         buffer[0] = '\0';
         return buffer;
-	}
+    }
 
-	strcat(buffer, percentageBuffer);
-	for (size_t x = strlen(buffer); x < desiredWidth; x++) {
-		strcat(buffer, " ");
-	}
+    strcat(buffer, percentageBuffer);
+    for (size_t x = strlen(buffer); x < desiredWidth; x++) {
+        strcat(buffer, " ");
+    }
 
-	return buffer;
+    return buffer;
 }
 
 char *pctAndPad(char * buffer, double pct, size_t desiredWidth, size_t bufferLen, bool useDecimal, bool printPercentSign = true)
 {
     _ASSERT(desiredWidth + 1 < bufferLen);
 
-    const size_t percentageBufferSize = 100;	// Plenty big enough for any value
+    const size_t percentageBufferSize = 100; // Plenty big enough for any value
     char percentageBuffer[percentageBufferSize];
 
     if (useDecimal) {
@@ -506,14 +525,14 @@ AlignerContext::printStats()
         (isPaired() && options->profileAffineGap) ? " %AgSingle %AgUsedSingle AG/Edit" : ""
         );
 
-	const size_t strBufLen = 50;	// Way more than enough for 64 bit numbers with commas
-	char tooShort[strBufLen];
-	char single[strBufLen];
-	char multi[strBufLen];
-	char unaligned[strBufLen];
-	char numReads[strBufLen];
-	char readsPerSecond[strBufLen];
-	char alignTimeString[strBufLen];
+    const size_t strBufLen = 50; // Way more than enough for 64 bit numbers with commas
+    char tooShort[strBufLen];
+    char single[strBufLen];
+    char multi[strBufLen];
+    char unaligned[strBufLen];
+    char numReads[strBufLen];
+    char readsPerSecond[strBufLen];
+    char alignTimeString[strBufLen];
 
     char filtered[strBufLen];
     char extraAlignments[strBufLen];
@@ -540,7 +559,6 @@ AlignerContext::printStats()
                        |  |  |  |  |  |  | | |      |  | | | | | AgUsed
                        v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
     */
-
     WriteStatusMessage("%s %-14lld %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
         FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
         stats->rrnaReads,
@@ -550,9 +568,9 @@ AlignerContext::printStats()
         numPctAndPad(tooShort, stats->uselessReads , 100.0 * stats->uselessReads / max(stats->totalReads, (_int64)1), 22, strBufLen),
         (stats->filtered > 0) ? numPctAndPad(filtered, stats->filtered, 100.0 * stats->filtered / stats->totalReads, 23, strBufLen) : "",
         (stats->extraAlignments > 0) ? FormatUIntWithCommas(stats->extraAlignments, extraAlignments, strBufLen, 18) : "",
-		isPaired() ? pctAndPad(pctPairs,  100.0 * stats->alignedAsPairs / stats->totalReads, 7, strBufLen, true) : "",
-		FormatUIntWithCommas((_uint64)(1000 * stats->totalReads / max(alignTime, (_int64)1)), readsPerSecond, strBufLen),	// Aligntime is in ms
-		FormatUIntWithCommas((alignTime + 500) / 1000, alignTimeString, strBufLen, 20),
+        isPaired() ? pctAndPad(pctPairs,  100.0 * stats->alignedAsPairs / stats->totalReads, 7, strBufLen, true) : "",
+        FormatUIntWithCommas((_uint64)(1000 * stats->totalReads / max(alignTime, (_int64)1)), readsPerSecond, strBufLen), // Aligntime is in ms
+        FormatUIntWithCommas((alignTime + 500) / 1000, alignTimeString, strBufLen, 20),
         options->profile ? pctAndPad(pctRead, (double)stats->millisReading / (double)totalTime, 5, strBufLen, false) : "",
         options->profile ? pctAndPad(pctAlign, (double)stats->millisAligning / (double)totalTime, 6, strBufLen, false) : "",
         options->profile ? pctAndPad(pctWrite, (double)stats->millisWriting / (double)totalTime, 6, strBufLen, false) : "",
@@ -560,6 +578,11 @@ AlignerContext::printStats()
         (isPaired() && options->profileAffineGap) ? pctAndPad(pctAg2, (double)stats->agUsedSingleEndAlignment / (double)stats->totalReads, 14, strBufLen, true) : "",
         options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
     );
+    // hsk rds, cov, dep
+    fprintf(stderr, "HSK\t%d\t%f\t%f\n",
+                          stats->hskReads,
+                          100.0 * stats->hskcov.size() / T2T_HSK_SIZE,
+                          1.0 * stats->hskBases / T2T_HSK_SIZE);
 
     if (NULL != perfFile) {
         fprintf(perfFile, "maxHits\tmaxDist\t%% reads not useless\t%% reads single hit\t%% reads multi hit\t%% reads not found\tLV calls\taffine gap calls\t%% aligned as pairs\ttotal reads\treads/s\n");
@@ -572,9 +595,9 @@ AlignerContext::printStats()
         fprintf(perfFile, "%d\t%d\t%0.2f%%\t%0.2f%%\t%0.2f%%\t%0.2f%%\t%s\t%s\t%0.2f%%\t%s\t%s\n",
                 maxHits_, maxDist_, 
                 100.0 * (stats->totalReads - stats->uselessReads) / max(stats->totalReads, (_int64) 1),
-				100.0 * stats->singleHits / stats->totalReads,
-				100.0 * stats->multiHits / stats->totalReads,
-				100.0 * stats->notFound / stats->totalReads,
+                100.0 * stats->singleHits / stats->totalReads,
+                100.0 * stats->multiHits / stats->totalReads,
+                100.0 * stats->notFound / stats->totalReads,
                 FormatUIntWithCommas(stats->lvCalls, lvBuf, strBufLen),
                 FormatUIntWithCommas(stats->affineGapCalls, agBuf, strBufLen),
                 100.0 * stats->alignedAsPairs / stats->totalReads,
@@ -711,8 +734,8 @@ AlignerContext::parseOptions(
     if (argc < 3) {
         WriteErrorMessage("Too few parameters\n");
         options->usage();
-		delete options;
-		return NULL;
+        delete options;
+        return NULL;
     }
 
     options->indexDir = argv[1];
@@ -729,7 +752,7 @@ AlignerContext::parseOptions(
 
     int i;
     int nInputs = 0;
-    for (i = 2; i < argc; i++) {	// Starting at 2 skips single/paired and the index
+    for (i = 2; i < argc; i++) { // Starting at 2 skips single/paired and the index
 
         if (',' == argv[i][0]  && '\0' == argv[i][1]) {
             i++;    // Consume the comma
@@ -740,16 +763,16 @@ AlignerContext::parseOptions(
         SNAPFile input;
         if (SNAPFile::generateFromCommandLine(argv+i, argc-i, &argsConsumed, &input, paired, true)) {
             if (input.isStdio) {
-				if (CommandPipe != NULL) {
-					WriteErrorMessage("You may not use stdin/stdout in daemon mode\n");
-					delete options;
-					return NULL;
-				}
+                if (CommandPipe != NULL) {
+                    WriteErrorMessage("You may not use stdin/stdout in daemon mode\n");
+                    delete options;
+                    return NULL;
+                }
 
                 if (inputFromStdio) {
                     WriteErrorMessage("You specified stdin ('-') specified for more than one input, which isn't permitted.\n");
-					delete options;
-					return NULL;
+                    delete options;
+                    return NULL;
                 } else {
                     inputFromStdio = true;
                 }
@@ -770,8 +793,8 @@ AlignerContext::parseOptions(
         if (!options->parse(argv, argc, i, &done)) {
             WriteErrorMessage("Didn't understand options starting at %s\n", argv[oldI]);
             options->usage();
-			delete options;
-			return NULL;
+            delete options;
+            return NULL;
         }
 
         if (done) {
@@ -782,21 +805,21 @@ AlignerContext::parseOptions(
 
     if (0 == nInputs) {
         WriteErrorMessage("No input files specified.\n");
-		delete options;
-		return NULL;
+        delete options;
+        return NULL;
     }
 
     if (options->maxDist + options->extraSearchDepth >= MAX_K) {
         WriteErrorMessage("You specified too large of a maximum edit distance combined with extra search depth.  The must add up to less than %d.\n", MAX_K);
         WriteErrorMessage("Either reduce their sum, or change MAX_K in LandauVishkin.h and recompile.\n");
-		delete options;
-		return NULL;
+        delete options;
+        return NULL;
     }
 
     if (options->maxSecondaryAlignmentAdditionalEditDistance > (int)options->extraSearchDepth) {
         WriteErrorMessage("You can't have the max edit distance for secondary alignments (-om) be bigger than the max search depth (-D)\n");
-		delete options;
-		return NULL;
+        delete options;
+        return NULL;
     }
 
     options->nInputs = nInputs;

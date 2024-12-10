@@ -107,6 +107,8 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         while (NULL != (read = supplier->getNextRead())) {
             stats->totalReads++;
             stats->rrnaReads = 0;
+            stats->hskReads = 0;
+            stats->hskBases = 0;
             SingleAlignmentResult result;
             result.status = NotFound;
             result.direction = FORWARD;
@@ -330,6 +332,21 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
                 (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
             stats->rrnaReads++;
+        // count reads falling into HSK regions
+        if (hskpos.find(alignmentResults[0].location) != hskpos.end() &&
+                (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+        {
+            for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
+                     i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter; ++i)
+            {
+                if (hskpos.find(i) != hskpos.end())
+                {
+                    stats->hskBases++;
+                    stats->hskcov.insert(i);
+                }
+            }
+            stats->hskReads++;
+        }
         if (containsPrimary) {
             updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);
         } else {
