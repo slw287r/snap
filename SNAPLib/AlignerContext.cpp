@@ -533,7 +533,7 @@ char *pctAndPad(char * buffer, double pct, size_t desiredWidth, size_t bufferLen
     void
 AlignerContext::printStats()
 {
-    WriteStatusMessage("Total Reads    rRNA Reads     Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
+    WriteStatusMessage("Total Reads    rRNA Reads           Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
         (stats->filtered > 0) ? "Filtered               " : "",
         (stats->extraAlignments) ? "Extra Alignments  " : "",
         isPaired() ? "%Pairs    " : "   ",
@@ -578,7 +578,7 @@ AlignerContext::printStats()
     */
     WriteStatusMessage("%s %s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
         FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
-        numPctAndPad(rrna, stats->rrnaReads, 100.0 * stats->rrnaReads / stats->totalReads, 14, strBufLen),
+        numPctAndPad(rrna, stats->rrnaReads, 100.0 * stats->rrnaReads / stats->totalReads, 20, strBufLen),
         numPctAndPad(single, stats->singleHits, 100.0 * stats->singleHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(multi, stats->multiHits, 100.0 * stats->multiHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(unaligned, stats->notFound, 100.0 * stats->notFound / stats->totalReads, 22, strBufLen),
@@ -596,7 +596,7 @@ AlignerContext::printStats()
         options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
     );
     // hsk rds, cov, dep
-    fprintf(stderr, "HSK_READS_COV%%_AVGDEP\t%d\t%f\t%f\n",
+    fprintf(stderr, "HSK_READS_COV%%_AVGDEP\t%d\t%.2f\t%.2f\n",
                           stats->hskReads,
                           100.0 * stats->hskcov.size() / T2T_HSK_SIZE,
                           1.0 * stats->hskBases / T2T_HSK_SIZE);
