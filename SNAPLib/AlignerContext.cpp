@@ -318,10 +318,10 @@ AlignerContext::initialize()
     // check chr sizes in order
     if (isT2T) {
         int numContigs = index->getGenome()->getNumContigs();
-        if (numContigs != T2T_CHROMOSOME_COUNT)
+        if (numContigs < T2T_CHROMOSOME_COUNT)
             isT2T = false;
         else {
-            for (int i = 0; i < numContigs; ++i) {
+            for (int i = 0; i < T2T_CHROMOSOME_COUNT; ++i) {
                 const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
                 if (contig->length - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
                     isT2T = false;
@@ -543,6 +543,7 @@ AlignerContext::printStats()
 
     const size_t strBufLen = 50; // Way more than enough for 64 bit numbers with commas
     char tooShort[strBufLen];
+    char rrna[strBufLen];
     char single[strBufLen];
     char multi[strBufLen];
     char unaligned[strBufLen];
@@ -575,9 +576,9 @@ AlignerContext::printStats()
                        |  |  |  |  |  |  | | |      |  | | | | | AgUsed
                        v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
     */
-    WriteStatusMessage("%s %-14lld %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
+    WriteStatusMessage("%s %s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
         FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
-        stats->rrnaReads,
+        numPctAndPad(rrna, stats->rrnaReads, 100.0 * stats->rrnaReads / stats->totalReads, 14, strBufLen),
         numPctAndPad(single, stats->singleHits, 100.0 * stats->singleHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(multi, stats->multiHits, 100.0 * stats->multiHits / stats->totalReads, 22, strBufLen),
         numPctAndPad(unaligned, stats->notFound, 100.0 * stats->notFound / stats->totalReads, 22, strBufLen),
