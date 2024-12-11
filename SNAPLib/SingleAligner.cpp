@@ -328,24 +328,27 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             startTime = timeInMillis();
             stats->millisWriting = (startTime - alignFinishedTime);
         }
-        // count reads falling into rRNA regions
-        if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
-                (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
-            stats->rrnaReads++;
-        // count reads falling into HSK regions
-        if (hskpos.find(alignmentResults[0].location) != hskpos.end() &&
-                (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+        if (isT2T)
         {
-            for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
-                     i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter; ++i)
+            // count reads falling into rRNA regions
+            if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
+                    (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                stats->rrnaReads++;
+            // count reads falling into HSK regions
+            if (hskpos.find(alignmentResults[0].location) != hskpos.end() &&
+                    (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
             {
-                if (hskpos.find(i) != hskpos.end())
+                for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
+                         i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter; ++i)
                 {
-                    stats->hskBases++;
-                    stats->hskcov.insert(i);
+                    if (hskpos.find(i) != hskpos.end())
+                    {
+                        stats->hskBases++;
+                        stats->hskcov.insert(i);
+                    }
                 }
+                stats->hskReads++;
             }
-            stats->hskReads++;
         }
         if (containsPrimary) {
             updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);

@@ -52,11 +52,12 @@ static void usage()
 		"            for every locus in a set of contigs\n"
 #endif // HIT_DEPTH_COUNTING
 		"Type a command without arguments to see its help.\n\n"
-		"\e[31m*\e[0m \e[3mrRNA reads mapped to T2T reference (v2, chr1 length: 248387328 bp)\n"
+		"\e[31m*\e[0m \e[3mrRNA reads mapped to T2T reference (v2, chr1 length: 248387328 bp,\n"
+		"  chromosomes in the order chr1, chr2, ..., chr22, chrX, chrY, chrM)\n"
 		"  are counted for capture efficiency calculation. Please ignore the\n"
 		"  rRNA reads number for non-T2T references. Do a dummy run to get the\n"
 		"  chr1 length of the snap db via:\e[0m\n\n"
-		"  %s single /path/to/dbdir -fastq /dev/null >a.sam\n\n",
+		"  %s single /path/to/dbdir -fastq /dev/null\n\n",
 		__progname, __progname);
 }
 

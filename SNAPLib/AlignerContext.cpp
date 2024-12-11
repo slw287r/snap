@@ -314,6 +314,22 @@ AlignerContext::initialize()
     } else {
         index = g_index;
     }
+    isT2T = index->getGenome()->getCountOfBases() == T2T_GENOME_BASES ? true : false;
+    // check chr sizes in order
+    if (isT2T) {
+        int numContigs = index->getGenome()->getNumContigs();
+        if (numContigs != T2T_CHROMOSOME_COUNT)
+            isT2T = false;
+        else {
+            for (int i = 0; i < numContigs; ++i) {
+                const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
+                if (contig->length - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
+                    isT2T = false;
+                    break;
+                }
+            }
+        }
+    }
     rrnapos = rrnaPosSet();
     hskpos = hskPosSet();
     maxHits_ = options->maxHits;
@@ -579,7 +595,7 @@ AlignerContext::printStats()
         options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
     );
     // hsk rds, cov, dep
-    fprintf(stderr, "HSK\t%d\t%f\t%f\n",
+    fprintf(stderr, "HSK_READS_COV%%_AVGDEP\t%d\t%f\t%f\n",
                           stats->hskReads,
                           100.0 * stats->hskcov.size() / T2T_HSK_SIZE,
                           1.0 * stats->hskBases / T2T_HSK_SIZE);

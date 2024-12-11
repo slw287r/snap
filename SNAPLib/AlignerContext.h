@@ -104,6 +104,7 @@ public:
     _int64                               alignStart;
     _int64                               alignTime;
     AlignerOptions                      *options;
+    bool                                 isT2T;
     std::unordered_set<_int64>           rrnapos;
     std::unordered_set<_int64>           hskpos;
     AlignerStats                        *stats;
