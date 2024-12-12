@@ -622,7 +622,8 @@ AlignerContext::printStats()
     sort(ic.begin(), ic.end(), std::greater<_int64>());
     for (auto x : ic)
         fprintf(stderr, "IC%d:%" PRId64 ";", UINT32_MAX - (_int32)x, x>>32);
-    fputc('\n', stderr);
+    if (ic.size())
+        fputc('\n', stderr);
     if (NULL != perfFile) {
         fprintf(perfFile, "maxHits\tmaxDist\t%% reads not useless\t%% reads single hit\t%% reads multi hit\t%% reads not found\tLV calls\taffine gap calls\t%% aligned as pairs\ttotal reads\treads/s\n");
 
