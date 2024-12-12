@@ -332,9 +332,9 @@ AlignerContext::initialize()
         if (numContigs < T2T_CHROMOSOME_NROW)
             isT2T = hasIC = false;
         else {
-            for (int i = 0; i < T2T_CHROMOSOME_NROW; ++i) {
-                const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
-                if (contig->length - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
+            for (int i = 0; i < T2T_CHROMOSOME_NROW; ++i) { // check chr order
+                const _int64 ctgLength = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i))->length;
+                if (ctgLength - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
                     isT2T = false;
                     break;
                 }
@@ -501,7 +501,7 @@ char *numPctAndPad(char *buffer, _uint64 num, double pct, size_t desiredWidth, s
     const size_t percentageBufferSize = 100; // Plenty big enough for any value
     char percentageBuffer[percentageBufferSize];
 
-    sprintf(percentageBuffer, " (%.02f%%)", pct);
+    snprintf(percentageBuffer, percentageBufferSize, " (%.02f%%)", pct);
     if (strlen(percentageBuffer) + strlen(buffer) >= bufferLen || desiredWidth >= bufferLen) { // >= accounts for terminating null
         WriteErrorMessage("numPctAndPad: overflowed output buffer\n");
         buffer[0] = '\0';
@@ -524,10 +524,10 @@ char *pctAndPad(char * buffer, double pct, size_t desiredWidth, size_t bufferLen
     char percentageBuffer[percentageBufferSize];
 
     if (useDecimal) {
-        sprintf(percentageBuffer, "%.02f%s", pct, (printPercentSign ? "%" : ""));
+        snprintf(percentageBuffer, percentageBufferSize, "%.02f%s", pct, (printPercentSign ? "%" : ""));
     } else {
-        sprintf(percentageBuffer, "%d%s",  (unsigned)((100.0 * pct) + .5), (printPercentSign ? "%" : ""));
-        sprintf(percentageBuffer, "%d%s",  (unsigned)((100.0 * pct) + .5), (printPercentSign ? "%" : ""));
+        snprintf(percentageBuffer, percentageBufferSize, "%d%s",  (unsigned)((100.0 * pct) + .5), (printPercentSign ? "%" : ""));
+        snprintf(percentageBuffer, percentageBufferSize, "%d%s",  (unsigned)((100.0 * pct) + .5), (printPercentSign ? "%" : ""));
     }
 
     if (strlen(percentageBuffer) + 1 > bufferLen) {
@@ -577,18 +577,18 @@ AlignerContext::printStats()
     _int64 totalTime = stats->millisReading + stats->millisAligning + stats->millisWriting;
 
     /*
-                       total
-                       |  rrna
-                       |  |  single
-                       |  |  |  multi
-                       |  |  |  |  unaligned        reads/s
-                       |  |  |  |  |  too short     |  time
-                       |  |  |  |  |  |  filtered   |  | %Read
-                       |  |  |  |  |  |  | extra    |  | | %Align
-                       |  |  |  |  |  |  | | pairs  |  | | | %Write
-                       |  |  |  |  |  |  | | |      |  | | | | Ag
-                       |  |  |  |  |  |  | | |      |  | | | | | AgUsed
-                       v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
+                        total
+                        |  rrna
+                        |  |  single
+                        |  |  |  multi
+                        |  |  |  |  unaligned        reads/s
+                        |  |  |  |  |  too short     |  time
+                        |  |  |  |  |  |  filtered   |  | %Read
+                        |  |  |  |  |  |  | extra    |  | | %Align
+                        |  |  |  |  |  |  | | pairs  |  | | | %Write
+                        |  |  |  |  |  |  | | |      |  | | | | Ag
+                        |  |  |  |  |  |  | | |      |  | | | | | AgUsed
+                        v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
     */
     WriteStatusMessage("%s %s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
         FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
@@ -610,20 +610,22 @@ AlignerContext::printStats()
         options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
     );
     // hsk rds, cov, dep
-    fprintf(stderr, "HSK_READS_COV_AVGDEP\t%" PRId64 "\t%.2f\t%.2f\n",
+    WriteStatusMessage("HSK_READS_COV_AVGDEP\t%" PRId64 "\t%.2f\t%.2f\n",
                           stats->hskReads,
                           100.0 * stats->hskCov.size() / T2T_HSK_SIZE,
                           1.0 * stats->hskBases / T2T_HSK_SIZE);
     // sort IC by reads number and index
     std::vector<_int64> ic;
-    for (auto it = stats->icReads.begin(); it != stats->icReads.end(); ++it)
+    std::unordered_map<_int8, _int64>::iterator it;
+    for (it = stats->icReads.begin(); it != stats->icReads.end(); ++it)
         if (it->second)
             ic.insert(ic.end(), (it->second << 32) | (UINT32_MAX - it->first));
     sort(ic.begin(), ic.end(), std::greater<_int64>());
-    for (auto x : ic)
-        fprintf(stderr, "IC%d:%" PRId64 ";", UINT32_MAX - (_int32)x, x>>32);
+    std::vector<_int64>::iterator x;
+    for (x = ic.begin(); x != ic.end(); ++x)
+        WriteStatusMessage("IC%d:%" PRId64 ";", UINT32_MAX - (_int32)*x, *x>>32);
     if (ic.size())
-        fputc('\n', stderr);
+        WriteStatusMessage("\n");
     if (NULL != perfFile) {
         fprintf(perfFile, "maxHits\tmaxDist\t%% reads not useless\t%% reads single hit\t%% reads multi hit\t%% reads not found\tLV calls\taffine gap calls\t%% aligned as pairs\ttotal reads\treads/s\n");
 

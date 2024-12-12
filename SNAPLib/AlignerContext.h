@@ -81,7 +81,7 @@ public:
     virtual std::unordered_set<_int64> hskPosSet();
     virtual std::unordered_set<_int64> hskCovSet();
 
-    // IC positions to index map
+    // IC positions to IC name index map
     virtual std::unordered_map<_int64, _int8> icPosMap();
 
     // new stats object
