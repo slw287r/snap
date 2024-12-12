@@ -19,7 +19,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
-#include <bits/stdc++.h>
 
 #include <ctype.h>
 #include <errno.h>
