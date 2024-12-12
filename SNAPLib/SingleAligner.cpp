@@ -206,7 +206,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         stats->totalReads++;
 
         if (AlignerOptions::useHadoopErrorMessages && stats->totalReads % 10000 == 0 && timeInMillis() - lastReportTime > 10000) {
-            fprintf(stderr,"reporter:counter:SNAP,readsAligned,%llu\n",stats->totalReads - readsWhenLastReported);
+            fprintf(stderr,"reporter:counter:SNAP,readsAligned,%" PRId64 "\n",stats->totalReads - readsWhenLastReported);
             readsWhenLastReported = stats->totalReads;
             lastReportTime = timeInMillis();
         }
@@ -344,10 +344,22 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                     if (hskpos.find(i) != hskpos.end())
                     {
                         stats->hskBases++;
-                        stats->hskcov.insert(i);
+                        stats->hskCov.insert(i);
                     }
                 }
                 stats->hskReads++;
+            }
+            if (hasIC) {
+                auto it = icpos.find(alignmentResults[0].location);
+                if (it != icpos.end() &&
+                        (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                {
+                    auto ir = stats->icReads.find(it->second);
+                    if (ir == stats->icReads.end())
+                        stats->icReads.insert(std::make_pair(it->second, 1));
+                    else
+                        ir->second++;
+                }
             }
         }
         if (containsPrimary) {

@@ -10,12 +10,16 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #endif
 
+#define __STDC_FORMAT_MACROS 1
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
+#include <bits/stdc++.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -24,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #include <utility>
 
 #ifdef _MSC_VER

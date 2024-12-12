@@ -259,6 +259,16 @@ AlignerContext::rrnaPosSet()
     return newSet;
 }
 
+    std::unordered_map<_int64, _int8>
+AlignerContext::icPosMap()
+{
+    std::unordered_map<_int64, _int8> newMap;
+    for (unsigned i = 0; i < T2T_IC_NROW; ++i)
+        for (_int64 j = T2T_IC_RANGE[i][0]; j <= T2T_IC_RANGE[i][1]; ++j)
+            newMap.insert(std::make_pair(j, T2T_IC_RANGE[i][2]));
+    return newMap;
+}
+
     std::unordered_set<_int64>
 AlignerContext::hskPosSet()
 {
@@ -314,24 +324,28 @@ AlignerContext::initialize()
     } else {
         index = g_index;
     }
-    isT2T = index->getGenome()->getCountOfBases() == T2T_GENOME_BASES ? true : false;
+    hasIC = false;
+    isT2T = index->getGenome()->getCountOfBases() >= T2T_GENOME_BASES ? true : false;
     // check chr sizes in order
     if (isT2T) {
         int numContigs = index->getGenome()->getNumContigs();
-        if (numContigs < T2T_CHROMOSOME_COUNT)
-            isT2T = false;
+        if (numContigs < T2T_CHROMOSOME_NROW)
+            isT2T = hasIC = false;
         else {
-            for (int i = 0; i < T2T_CHROMOSOME_COUNT; ++i) {
+            for (int i = 0; i < T2T_CHROMOSOME_NROW; ++i) {
                 const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
                 if (contig->length - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
                     isT2T = false;
                     break;
                 }
             }
+            if (isT2T && numContigs == T2T_CHROMOSOME_NROW + T2T_IC_NROW)
+                hasIC = true;
         }
     }
     rrnapos = rrnaPosSet();
     hskpos = hskPosSet();
+    icpos = icPosMap();
     maxHits_ = options->maxHits;
     maxDist_ = options->maxDist;
     maxDistForIndels_ = options->maxDistForIndels;
@@ -596,11 +610,19 @@ AlignerContext::printStats()
         options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
     );
     // hsk rds, cov, dep
-    fprintf(stderr, "HSK_READS_COV%%_AVGDEP\t%d\t%.2f\t%.2f\n",
+    fprintf(stderr, "HSK_READS_COV_AVGDEP\t%" PRId64 "\t%.2f\t%.2f\n",
                           stats->hskReads,
-                          100.0 * stats->hskcov.size() / T2T_HSK_SIZE,
+                          100.0 * stats->hskCov.size() / T2T_HSK_SIZE,
                           1.0 * stats->hskBases / T2T_HSK_SIZE);
-
+    // sort IC by reads number and index
+    std::vector<_int64> ic;
+    for (auto it = stats->icReads.begin(); it != stats->icReads.end(); ++it)
+        if (it->second)
+            ic.insert(ic.end(), (it->second << 32) | (UINT32_MAX - it->first));
+    sort(ic.begin(), ic.end(), std::greater<_int64>());
+    for (auto x : ic)
+        fprintf(stderr, "IC%d:%" PRId64 ";", UINT32_MAX - (_int32)x, x>>32);
+    fputc('\n', stderr);
     if (NULL != perfFile) {
         fprintf(perfFile, "maxHits\tmaxDist\t%% reads not useless\t%% reads single hit\t%% reads multi hit\t%% reads not found\tLV calls\taffine gap calls\t%% aligned as pairs\ttotal reads\treads/s\n");
 

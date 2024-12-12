@@ -121,8 +121,17 @@ AlignerStats::add(
     agForcedSingleEndAlignment += other->agForcedSingleEndAlignment;
     agUsedSingleEndAlignment += other->agUsedSingleEndAlignment;
 
-    for (auto it = other->hskcov.begin(); it != other->hskcov.end(); it++) 
-        hskcov.insert(*it);
+    for (auto it = other->hskCov.begin(); it != other->hskCov.end(); it++) 
+        hskCov.insert(*it);
+
+    for (auto it = other->icReads.begin(); it != other->icReads.end(); it++) 
+    {
+        auto ir = icReads.find(it->first);
+        if (ir == icReads.end())
+            icReads.insert(std::make_pair(it->first, it->second));
+        else
+            ir->second += it->second;
+    }
 
     if (extra != NULL && other->extra != NULL) {
         extra->add(other->extra);

@@ -23,7 +23,7 @@ Revision History:
 #pragma once
 #include "Compat.h"
 #include "version.h"
-#define SNAP_VERSION "2.0.3a"
+#define SNAP_VERSION "2.0.3b"
 
 extern const char *__progname;
 

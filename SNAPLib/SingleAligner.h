@@ -23,6 +23,7 @@ Revision History:
 --*/
 
 #pragma once
+#include <inttypes.h>
 #include "stdafx.h"
 #include "AlignerContext.h"
 #include "AlignerStats.h"

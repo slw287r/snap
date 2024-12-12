@@ -81,6 +81,9 @@ public:
     virtual std::unordered_set<_int64> hskPosSet();
     virtual std::unordered_set<_int64> hskCovSet();
 
+    // IC positions to index map
+    virtual std::unordered_map<_int64, _int8> icPosMap();
+
     // new stats object
     virtual AlignerStats* newStats() = 0;
     
@@ -105,8 +108,10 @@ public:
     _int64                               alignTime;
     AlignerOptions                      *options;
     bool                                 isT2T;
+    bool                                 hasIC;
     std::unordered_set<_int64>           rrnapos;
     std::unordered_set<_int64>           hskpos;
+    std::unordered_map<_int64, _int8>    icpos;
     AlignerStats                        *stats;
     AlignerExtension                    *extension;
     unsigned                             maxDist;
