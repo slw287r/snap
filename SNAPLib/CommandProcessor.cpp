@@ -88,14 +88,11 @@ void ProcessNonDaemonCommands(int argc, const char **argv) {
 			_ASSERT(nArgsConsumed > 0);
 			i += nArgsConsumed;
 		}
-
 #if HIT_DEPTH_COUNTING
 	} else if (strcmp(argv[1], "depth")) {
 		CountHitDepth(argc - 1, argv + 1);
 #endif // HIT_DEPTH_COUNTING
-
-	} else if (!strncmp(argv[1], "-v", 2) || !strncmp(argv[1], "--v", 3))
-	{
+	} else if (!strncmp(argv[1], "-v", 2) || !strncmp(argv[1], "--v", 3)) {
 		fprintf(stderr, "%s (%s)\n", SNAP_VERSION, BRANCH_COMMIT);
 		return;
 	} else if (!strncmp(argv[1], "-h", 2) || !strncmp(argv[1], "--h", 3))
