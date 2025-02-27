@@ -680,14 +680,22 @@ AlignerContext::printStats()
         fprintf(statFile, "\t\t\"filtered\": %" PRId64 "\n", stats->filtered);
         fputs("\t},\n", statFile);
         fputs("\t\"hsk\": {\n", statFile);
-        fprintf(statFile, "\t\t\"reads\": % " PRId64 ",\n", stats->hskReads);
+        fprintf(statFile, "\t\t\"reads\": %" PRId64 ",\n", stats->hskReads);
         fprintf(statFile, "\t\t\"coverage\": %.3f,\n", 100.0 * stats->hskCov.size() / T2T_HSK_SIZE);
         fprintf(statFile, "\t\t\"depth\": %.3f\n", 1.0 * stats->hskBases / T2T_HSK_SIZE);
         fputs("\t},\n", statFile);
         fputs("\t\"ic\": {\n", statFile);
-        for (x = ic.begin(); x != ic.end() - 1; ++x)
-            fprintf(statFile, "\t\t\"%d\":%" PRId64 ",\n", UINT32_MAX - (_int32)*x, *x>>32);
-        fprintf(statFile, "\t\t\"%d\":%" PRId64 "\n", UINT32_MAX - (_int32)*x, *x>>32);
+        if (ic.size() == 1)
+        {
+            x = ic.begin();
+            fprintf(statFile, "\t\t\"%d\": %" PRId64 "\n", UINT32_MAX - (_int32)*x, *x>>32);
+        }
+        else
+        {
+            for (x = ic.begin(); x != ic.end() - 1; ++x)
+                fprintf(statFile, "\t\t\"%d\": %" PRId64 ",\n", UINT32_MAX - (_int32)*x, *x>>32);
+            fprintf(statFile, "\t\t\"%d\": %" PRId64 "\n", UINT32_MAX - (_int32)*x, *x>>32);
+        }
         fputs("\t}\n", statFile);
         fputc('}', statFile);
     }
