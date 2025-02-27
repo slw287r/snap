@@ -389,7 +389,7 @@ AlignerContext::initialize()
     }
 
     if (options->statFileName != NULL) {
-        statFile = fopen(options->statFileName, "a");
+        statFile = fopen(options->statFileName, "w");
         if (NULL == statFile) {
             WriteErrorMessage("Unable to open stats file '%s'\n", options->statFileName);
             soft_exit(1);
@@ -668,7 +668,7 @@ AlignerContext::printStats()
     }
     // output stats to json via -ss
     if (NULL != statFile) {
-        fputc('{', statFile);
+        fputs("{\n", statFile);
         fputs("\t\"alignment\": {\n", statFile);
         fprintf(statFile, "\t\t\"total_reads\": %" PRId64 ",\n", stats->totalReads);
         fprintf(statFile, "\t\t\"rrna_reads\": %" PRId64 ",\n", stats->rrnaReads);
@@ -678,15 +678,16 @@ AlignerContext::printStats()
         fprintf(statFile, "\t\t\"unaligned\": %" PRId64 ",\n", stats->notFound);
         fprintf(statFile, "\t\t\"too_short_or_too_much_N\": %" PRId64 ",\n", stats->uselessReads);
         fprintf(statFile, "\t\t\"filtered\": %" PRId64 "\n", stats->filtered);
-        fputs("\t},", statFile);
+        fputs("\t},\n", statFile);
         fputs("\t\"hsk\": {\n", statFile);
         fprintf(statFile, "\t\t\"reads\": % " PRId64 ",\n", stats->hskReads);
         fprintf(statFile, "\t\t\"coverage\": %.3f,\n", 100.0 * stats->hskCov.size() / T2T_HSK_SIZE);
         fprintf(statFile, "\t\t\"depth\": %.3f\n", 1.0 * stats->hskBases / T2T_HSK_SIZE);
         fputs("\t},\n", statFile);
         fputs("\t\"ic\": {\n", statFile);
-        for (x = ic.begin(); x != ic.end(); ++x)
+        for (x = ic.begin(); x != ic.end() - 1; ++x)
             fprintf(statFile, "\t\t\"%d\":%" PRId64 ",\n", UINT32_MAX - (_int32)*x, *x>>32);
+        fprintf(statFile, "\t\t\"%d\":%" PRId64 "\n", UINT32_MAX - (_int32)*x, *x>>32);
         fputs("\t}\n", statFile);
         fputc('}', statFile);
     }
