@@ -58,13 +58,13 @@ struct AbstractOptions
 enum FileType {UnknownFileType, SAMFile, FASTQFile, BAMFile, InterleavedFASTQFile, CRAMFile};  // Add more as needed
 
 struct SNAPFile {
-	SNAPFile() : fileName(NULL), secondFileName(NULL), fileType(UnknownFileType), isStdio(false), omitSQLines(false) {}
+    SNAPFile() : fileName(NULL), secondFileName(NULL), fileType(UnknownFileType), isStdio(false), omitSQLines(false) {}
     const char          *fileName;
     const char          *secondFileName;
     FileType             fileType;
     bool                 isCompressed;
     bool                 isStdio;           // Only applies to the first file for two-file inputs
-	bool				 omitSQLines;		// Special (formerly) undocumented option for Charles Chiu's group.  Mostly a bad idea.
+    bool                 omitSQLines;        // Special (formerly) undocumented option for Charles Chiu's group.  Mostly a bad idea.
 
     PairedReadSupplierGenerator *createPairedReadSupplierGenerator(int numThreads, bool quicklyDropUnpairedReads, const ReaderContext& context);
     ReadSupplierGenerator *createReadSupplierGenerator(int numThreads, const ReaderContext& context);
@@ -81,7 +81,7 @@ struct DisabledOptimizations {
 
     bool                noUkkonen;
     bool                noOrderedEvaluation;
-    bool				noTruncation;
+    bool                noTruncation;
     bool                noEditDistance;
     bool                noBandedAffineGap;
     bool                noMaxKForIndel;
@@ -120,17 +120,18 @@ struct AlignerOptions : public AbstractOptions
     unsigned            filterFlags;
     bool                explorePopularSeeds;
     bool                stopOnFirstHit;
-	bool				useM;	// Should we generate CIGAR strings using = and X, or using the old-style M?
+    bool                useM;    // Should we generate CIGAR strings using = and X, or using the old-style M?
     unsigned            gapPenalty; // if non-zero use gap penalty aligner
     AbstractOptions    *extra; // extra options
     const char         *rgLineContents;
     const char         *perfFileName;
+    const char         *statFileName;
     bool                useTimingBarrier;
     unsigned            extraSearchDepth;
     const char         *defaultReadGroup; // if not specified in input
     bool                ignoreSecondaryAlignments; // on input, default true
     int                 maxSecondaryAlignmentAdditionalEditDistance;
-	int					maxSecondaryAlignments;
+    int                    maxSecondaryAlignments;
     int                 maxSecondaryAlignmentsPerContig;
     int                 flattenMAPQAtOrBelow;
     bool                preserveClipping;
@@ -144,9 +145,9 @@ struct AlignerOptions : public AbstractOptions
     unsigned            gapExtendPenalty;
     unsigned            fivePrimeEndBonus;
     unsigned            threePrimeEndBonus;
-	unsigned			minReadLength;
-	bool				mapIndex;
-	bool				prefetchIndex;
+    unsigned            minReadLength;
+    bool                mapIndex;
+    bool                prefetchIndex;
     size_t              writeBufferSize;
     bool                dropIndexBeforeSort;
     bool                killIfTooSlow;
@@ -156,12 +157,12 @@ struct AlignerOptions : public AbstractOptions
     bool                ignoreAlignmentAdjustmentsForOm;
     bool                emitInternalScore;
     char                internalScoreTag[3];
-	bool				altAwareness;
+    bool                altAwareness;
     int                 maxScoreGapToPreferNonALTAlignment;
     bool                emitALTAlignments;
     bool                attachAlignmentTimes;
     bool                preserveFASTQComments;
-    
+
     static bool         useHadoopErrorMessages; // This is static because it's global (and I didn't want to push the options object to every place in the code)
     static bool         outputToStdout;         // Likewise
 
@@ -177,10 +178,10 @@ struct AlignerOptions : public AbstractOptions
         FilterSingleHit =           0x0002,
         FilterMultipleHits =        0x0004,
         FilterBothMatesMatch =      0x0008,
-		FilterTooShort =            0x0010
+        FilterTooShort =            0x0010
     };
 
     bool passFilter(Read* read, AlignmentResult result, bool tooShort, bool secondaryAlignment);
-    
+
     virtual bool isPaired() { return false; }
 };

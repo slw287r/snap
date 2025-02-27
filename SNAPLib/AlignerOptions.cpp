@@ -55,11 +55,12 @@ AlignerOptions::AlignerOptions(
     filterFlags(0),
     explorePopularSeeds(false),
     stopOnFirstHit(false),
-	useM(true),
+    useM(true),
     gapPenalty(0),
-	extra(NULL),
+    extra(NULL),
     rgLineContents("@RG\tID:FASTQ\tPL:Illumina\tPU:pu\tLB:lb\tSM:sm"),
     perfFileName(NULL),
+    statFileName(NULL),
     useTimingBarrier(false),
     extraSearchDepth(1),
     defaultReadGroup("FASTQ"),
@@ -68,7 +69,7 @@ AlignerOptions::AlignerOptions(
     numSeedsFromCommandLine(0),
     ignoreSecondaryAlignments(true),
     maxSecondaryAlignmentAdditionalEditDistance(-1),
-	maxSecondaryAlignments(0x7fffffff),
+    maxSecondaryAlignments(0x7fffffff),
     maxSecondaryAlignmentsPerContig(-1),    // -1 means don't limit
     preserveClipping(false),
     expansionFactor(1.0),
@@ -79,11 +80,11 @@ AlignerOptions::AlignerOptions(
     gapExtendPenalty(1),
     fivePrimeEndBonus(10),
     threePrimeEndBonus(7),
-	minReadLength(DEFAULT_MIN_READ_LENGTH),
+    minReadLength(DEFAULT_MIN_READ_LENGTH),
     maxDistFraction(0.0),
-	mapIndex(true),
+    mapIndex(true),
 #if _MSC_VER
-	prefetchIndex(false),
+    prefetchIndex(false),
 #else // _MSC_VER
     prefetchIndex(true),
 #endif // _MSC__VER
@@ -95,7 +96,7 @@ AlignerOptions::AlignerOptions(
     profileAffineGap(false),
     ignoreAlignmentAdjustmentsForOm(true),
     emitInternalScore(false),
-	altAwareness(true),
+    altAwareness(true),
     emitALTAlignments(false),
     maxScoreGapToPreferNonALTAlignment(64),
     useSoftClipping(true),
@@ -114,7 +115,7 @@ AlignerOptions::AlignerOptions(
         maxDistForIndels        = 40;
         numSeedsFromCommandLine = 25;
         maxHits                 = 300;
-		seedCoverage			= 0;
+        seedCoverage            = 0;
     }
 
     initializeLVProbabilitiesToPhredPlus33();
@@ -275,10 +276,11 @@ AlignerOptions::usage()
             " -q    Quiet mode: don't print status messages (other than the welcome message which is printed prior to parsing args).  Error messages\n"
             "       are still printed.\n"            
             " -qq   Super quiet mode: don't print status or error messages.\n"
-		,
-			extraSearchDepth,
-			expansionFactor,
-			DEFAULT_MIN_READ_LENGTH,
+            " -ss   Statistics json file for snap-aligner single alignment\n"
+            ,
+            extraSearchDepth,
+            expansionFactor,
+            DEFAULT_MIN_READ_LENGTH,
             matchReward,
             subPenalty,
             gapOpenPenalty,
@@ -926,6 +928,14 @@ AlignerOptions::usage()
             } else {
                 WriteErrorMessage("Must specify the name of the perf file after -pf\n");
             }
+        } else if (strcmp(argv[n], "-ss") == 0) {
+            if (n + 1 < argc) {
+                statFileName = argv[n + 1];
+                n++;
+                return true;
+            } else {
+                WriteErrorMessage("Must specify the name of the stats file after -ss\n");
+            }
         } else if (strcmp(argv[n], "-rg") == 0) {
             if (n + 1 < argc) {
                 char* newReadGroup = new char[strlen(argv[n + 1]) + 1];
@@ -1061,7 +1071,7 @@ AlignerOptions::usage()
 AlignerOptions::passFilter(
     Read* read,
     AlignmentResult result,
-	bool tooShort,
+    bool tooShort,
     bool secondaryAlignment)
 {
     if (filterFlags == 0) {
@@ -1165,27 +1175,27 @@ SNAPFile::generateFromCommandLine(const char **args, int nArgs, int *argsConsume
         if (!strcmp(args[0], "-fastq") || !strcmp(args[0], "-compressedFastq")) {
             if (!isInput) {
                 WriteErrorMessage("%s is not a valid output file type.\n", args[0]);
-				return false;
+                return false;
             }
 
             if (paired && nArgs < 3) {
                 WriteErrorMessage("Expected a pair of fastQ files, but instead just got one\n");
-				return false;
+                return false;
             }
 
             snapFile->isCompressed = !strcmp(args[0], "-compressedFastq");
 
             if (paired) {
-				if (nArgs < 3) {
-					WriteErrorMessage("paired FASTQ requires two consecutive input files, and the last item on your command line is the first half of a FASTQ pair.\n");
-					return false;
-				}
+                if (nArgs < 3) {
+                    WriteErrorMessage("paired FASTQ requires two consecutive input files, and the last item on your command line is the first half of a FASTQ pair.\n");
+                    return false;
+                }
                 snapFile->fileType = FASTQFile;
                 snapFile->secondFileName = args[2];
                 if (!strcmp("-", args[2])) {
                     if (snapFile->isStdio) {
                         WriteErrorMessage("Can't have both halves of paired FASTQ files be stdin ('-').  Did you mean to use the interleaved FASTQ type?\n");
-						return false;
+                        return false;
                     }
                     snapFile->isStdio = true;
                 }
@@ -1197,18 +1207,18 @@ SNAPFile::generateFromCommandLine(const char **args, int nArgs, int *argsConsume
         } else if (!strcmp(args[0], "-sam")) {
             snapFile->fileType = SAMFile;
             *argsConsumed = 2;
-		} else if (!strcmp(args[0], "-samNoSQ") && !isInput) {	// No header is only valid for output file types
-			snapFile->fileType = SAMFile;
-			snapFile->omitSQLines = true;
-			*argsConsumed = 2;
-		} else if (!strcmp(args[0], "-bam")) {
+        } else if (!strcmp(args[0], "-samNoSQ") && !isInput) {    // No header is only valid for output file types
+            snapFile->fileType = SAMFile;
+            snapFile->omitSQLines = true;
+            *argsConsumed = 2;
+        } else if (!strcmp(args[0], "-bam")) {
             snapFile->fileType = BAMFile;
             snapFile->isCompressed = true;
             *argsConsumed = 2;
         } else if (!strcmp(args[0], "-pairedInterleavedFastq") || !strcmp(args[0], "-pairedCompressedInterleavedFastq")) {
             if (!paired) {
                 WriteErrorMessage("Specified %s for a single-end alignment.  To treat it as single-end, just use ordinary fastq (or compressed fastq, as appropriate)\n", args[0]);
-				return false;
+                return false;
             }
 
             snapFile->fileType = InterleavedFASTQFile;
@@ -1244,7 +1254,7 @@ SNAPFile::generateFromCommandLine(const char **args, int nArgs, int *argsConsume
         //
         WriteErrorMessage("You specified an output file with name '%s', which doesn't end in .sam or .bam, and doesn't have an explicit type\n"
                           "specifier.  There is no default output file type.  Consider doing something like '-o -bam %s'\n", args[0], args[0]);
-		return false;
+        return false;
     } else if (util::stringEndsWith(args[0], ".fq") || util::stringEndsWith(args[0], ".fastq") ||
         util::stringEndsWith(args[0], ".fq.gz") || util::stringEndsWith(args[0], ".fastq.gz") ||
         util::stringEndsWith(args[0], ".fq.gzip") || util::stringEndsWith(args[0], ".fastq.gzip")) {
@@ -1263,20 +1273,20 @@ SNAPFile::generateFromCommandLine(const char **args, int nArgs, int *argsConsume
         snapFile->isStdio = !strcmp(args[0], "-");
 
         if (paired) {
-			if (nArgs < 2) {
-				WriteErrorMessage("paired FASTQ requires two input files, and the last item on your command line is the first half of a FASTQ pair.\n");
-				return false;
-			}
-			snapFile->secondFileName = args[1];
+            if (nArgs < 2) {
+                WriteErrorMessage("paired FASTQ requires two input files, and the last item on your command line is the first half of a FASTQ pair.\n");
+                return false;
+            }
+            snapFile->secondFileName = args[1];
             if (!strcmp(args[1], "-")) {
                 if (snapFile->isStdio) {
                     WriteErrorMessage("Can't have both halves of paired FASTQ files be stdin ('-').  Did you mean to use the interleaved FASTQ type?\n");
-					return false;
+                    return false;
                 }
-				if (CommandPipe != NULL) {
-					WriteErrorMessage("You may not write to stdout in daemon mode\n");
-					return false;
-				}
+                if (CommandPipe != NULL) {
+                    WriteErrorMessage("You may not write to stdout in daemon mode\n");
+                    return false;
+                }
                 snapFile->isStdio = true;
             }
 
@@ -1288,7 +1298,7 @@ SNAPFile::generateFromCommandLine(const char **args, int nArgs, int *argsConsume
         } else {
             WriteErrorMessage("Unknown file type for file name '%s', please specify file type with -fastq, -sam, -bam, etc.\n", snapFile->fileName);
         }
-		return false;
+        return false;
     }
 
     return true;

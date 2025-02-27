@@ -70,16 +70,18 @@ AlignerContext::AlignerContext(int i_argc, const char **i_argv, const char *i_ve
     argc(i_argc),
     argv(i_argv),
     version(i_version),
-    perfFile(NULL)
+    perfFile(NULL),
+    statFile(NULL)
 {
 }
 
 AlignerContext::~AlignerContext()
 {
     delete extension;
-    if (NULL != perfFile) {
+    if (NULL != perfFile)
         fclose(perfFile);
-    }
+    if (NULL != statFile)
+        fclose(statFile);
     delete stats;
 }
 
@@ -379,9 +381,17 @@ AlignerContext::initialize()
     }
 
     if (options->perfFileName != NULL) {
-        perfFile = fopen(options->perfFileName,"a");
+        perfFile = fopen(options->perfFileName, "a");
         if (NULL == perfFile) {
             WriteErrorMessage("Unable to open perf file '%s'\n", options->perfFileName);
+            soft_exit(1);
+        }
+    }
+
+    if (options->statFileName != NULL) {
+        statFile = fopen(options->statFileName, "a");
+        if (NULL == statFile) {
+            WriteErrorMessage("Unable to open stats file '%s'\n", options->statFileName);
             soft_exit(1);
         }
     }
@@ -633,7 +643,6 @@ AlignerContext::printStats()
         char agBuf[strBufLen];
         char totalReadsBuf[strBufLen];
         char timePerReadBuf[strBufLen];
-
         fprintf(perfFile, "%d\t%d\t%0.2f%%\t%0.2f%%\t%0.2f%%\t%0.2f%%\t%s\t%s\t%0.2f%%\t%s\t%s\n",
                 maxHits_, maxDist_, 
                 100.0 * (stats->totalReads - stats->uselessReads) / max(stats->totalReads, (_int64) 1),
@@ -647,6 +656,10 @@ AlignerContext::printStats()
                 FormatUIntWithCommas((1000 * (stats->totalReads - stats->uselessReads)) / max(alignTime, (_int64)1), timePerReadBuf, strBufLen));
 
         fprintf(perfFile,"\n");
+    }
+    // TODO output stats to json via -ss
+    if (NULL != statFile) {
+        fprintf(statFile, "stats goes here\n");
     }
 
 

@@ -88,16 +88,16 @@ static void usage()
         "                   slow down the index build by doing extra, useless IO.\n"
         " -AutoAlt-         Don't automatically mark ALT contigs.  Otherwise, any contig whose name ends in '_alt' (regardless of captialization) or starts\n"
         "                   with HLA- will be marked ALT.  Others will not.\n"
-		" -maxAltContigSize Specify a size at or below which all contigs are automatically marked ALT, unless overridden by name using the args below\n"
-		" -altContigName    Specify the (case independent) name of an alt to mark a contig.  You can supply this parameter as often as you'd like\n"
-		" -altContigFile    Specify the name of a file with a list of alt contig names, one per line.  You may specify this as often as you'd like\n"
-		" -nonAltContigName Specify the name of a contig that's not an alt, regardless of its size\n"
-		" -nonAltContigFile Specify the name of a file that contains a list of contigs (one per line) that will not be marked ALT regardless of size\n"
+        " -maxAltContigSize Specify a size at or below which all contigs are automatically marked ALT, unless overridden by name using the args below\n"
+        " -altContigName    Specify the (case independent) name of an alt to mark a contig.  You can supply this parameter as often as you'd like\n"
+        " -altContigFile    Specify the name of a file with a list of alt contig names, one per line.  You may specify this as often as you'd like\n"
+        " -nonAltContigName Specify the name of a contig that's not an alt, regardless of its size\n"
+        " -nonAltContigFile Specify the name of a file that contains a list of contigs (one per line) that will not be marked ALT regardless of size\n"
         " -altLiftoverFile  Specify the file containing ALT-to-REF mappings (SAM format). e.g., hs38DH.fa.alt from bwa-kit\n"
         " -q                Quiet mode: don't print status messages (other than the welcome message which is printed prior to parsing args).  Error messages\n"
         "                   are still printed.\n"
         " -qq               Super quiet mode: don't print status or error messages\n"
-		,
+        ,
         BINARY_NAME,
         DEFAULT_SEED_SIZE,
         DEFAULT_SLACK,
@@ -109,19 +109,19 @@ static void usage()
 // Copies the input string, reallocates the list and adds it to the end.
     void
 addToCountedListOfStrings(
-	const char *newString,
-	int *length,
-	char ***list)
+    const char *newString,
+    int *length,
+    char ***list)
 {
-	char *newStringCopy = new char[strlen(newString) + 1];
-	strcpy(newStringCopy, newString);
+    char *newStringCopy = new char[strlen(newString) + 1];
+    strcpy(newStringCopy, newString);
 
-	char **newList = new char*[*length + 1];
-	memcpy(newList, *list, sizeof(char *) * *length);
-	delete[] *list;
-	*list = newList;
-	(*list)[*length] = newStringCopy;
-	(*length)++;
+    char **newList = new char*[*length + 1];
+    memcpy(newList, *list, sizeof(char *) * *length);
+    delete[] *list;
+    *list = newList;
+    (*list)[*length] = newStringCopy;
+    (*length)++;
 }
 
     void
@@ -146,14 +146,14 @@ GenomeIndex::runIndexer(
     unsigned chromosomePadding = DEFAULT_PADDING;
     bool forceExact = false;
     unsigned keySizeInBytes = 0;    // If it's not set by the user, it gets set based on the seed size later
-	bool large = false;
+    bool large = false;
     unsigned locationSize = 0; // If it's not set by the user, it gets set based on the seed size later
-	bool smallMemory = false;
-	GenomeDistance maxSizeForAutomaticALT = -1;
-	int nAltOptIn = 0;
-	char **altOptInList = NULL;
-	int nAltOptOut = 0;
-	char **altOptOutList = NULL;
+    bool smallMemory = false;
+    GenomeDistance maxSizeForAutomaticALT = -1;
+    int nAltOptIn = 0;
+    char **altOptInList = NULL;
+    int nAltOptOut = 0;
+    char **altOptOutList = NULL;
     bool autoALT = true;
     int nAltLiftover = 0;
     char **altLiftoverLines = NULL;
@@ -188,7 +188,7 @@ GenomeIndex::runIndexer(
             g_suppressStatusMessages = true;
             g_suppressErrorMessages = true;
         } else if (strcmp(argv[n], "-hg19") == 0) {
-			WriteErrorMessage("The -hg19 flag is deprecated, ignoring it.\n");
+            WriteErrorMessage("The -hg19 flag is deprecated, ignoring it.\n");
         } else if (_stricmp(argv[n], "-locationSize") == 0) {
             if (n + 1 < argc) {
                 locationSize = atoi(argv[n+1]);
@@ -205,22 +205,22 @@ GenomeIndex::runIndexer(
         } else if (argv[n][0] == '-' && argv[n][1] == 'H') {
             histogramFileName = argv[n] + 2;
         } else if (argv[n][0] == '-' && argv[n][1] == 'O') {
-			// Deprecated, ignored parameter
+            // Deprecated, ignored parameter
         } else if (argv[n][0] == '-' && argv[n][1] == 't') {
             maxThreads = atoi(argv[n]+2);
             if (maxThreads < 1 || maxThreads > 100) {
                 WriteErrorMessage("maxThreads must be between 1 and 100 inclusive (and you need not to leave a space after '-t')\n");
                 soft_exit(1);
             }
-		} else if (argv[n][0] == '-' && argv[n][1] == 'p') {
-			chromosomePadding = atoi(argv[n] + 2);
-			if (0 == chromosomePadding) {
-				WriteErrorMessage("Invalid chromosome padding specified, must be at least one (and in practice as large as any max edit distance you might use).\n");
-				soft_exit(1);
-			}
-		} else if (argv[n][0] == '-' && argv[n][1] == 's' && argv[n][2] == 'm') {
-			smallMemory = true;
-		} else if (_stricmp(argv[n], "-keysize") == 0) {
+        } else if (argv[n][0] == '-' && argv[n][1] == 'p') {
+            chromosomePadding = atoi(argv[n] + 2);
+            if (0 == chromosomePadding) {
+                WriteErrorMessage("Invalid chromosome padding specified, must be at least one (and in practice as large as any max edit distance you might use).\n");
+                soft_exit(1);
+            }
+        } else if (argv[n][0] == '-' && argv[n][1] == 's' && argv[n][2] == 'm') {
+            smallMemory = true;
+        } else if (_stricmp(argv[n], "-keysize") == 0) {
             if (n + 1 < argc) {
                 keySizeInBytes = atoi(argv[n+1]);
                 if (keySizeInBytes < 2 || keySizeInBytes > 8) {
@@ -233,86 +233,86 @@ GenomeIndex::runIndexer(
             }
         } else if (argv[n][0] == '-' && argv[n][1] == 'B') {
             pieceNameTerminatorCharacters = argv[n] + 2;
-		} else if (!strcmp(argv[n], "-bSpace")) {
+        } else if (!strcmp(argv[n], "-bSpace")) {
             spaceIsAPieceNameTerminator = true;
         } else if (!strcmp(argv[n], "-bSpace-")) {
             spaceIsAPieceNameTerminator = false;
-		} else if (!_stricmp(argv[n], "-AutoAlt-")) {
+        } else if (!_stricmp(argv[n], "-AutoAlt-")) {
             autoALT = false;
-		} else if (!strcmp(argv[n], "-maxAltContigSize")) {
-			if (n + 1 < argc) {
-				maxSizeForAutomaticALT = atoll(argv[n + 1]);
-			} else {
-				usage();
-			}
-			n++;
+        } else if (!strcmp(argv[n], "-maxAltContigSize")) {
+            if (n + 1 < argc) {
+                maxSizeForAutomaticALT = atoll(argv[n + 1]);
+            } else {
+                usage();
+            }
+            n++;
         } else if (!strcmp(argv[n], "-altContigName")) {
-			if (n + 1 < argc) {
-				addToCountedListOfStrings(argv[n + 1], &nAltOptIn, &altOptInList);
-			} else {
-				usage();
-			}
-			n++;
-		} else if (!strcmp(argv[n], "-nonAltContigName")) {
-			if (n + 1 < argc) {
-				addToCountedListOfStrings(argv[n + 1], &nAltOptOut, &altOptOutList);
-			} else {
-				usage();
-			}
-			n++;
-		} else if (!strcmp(argv[n], "-altContigFile")) {
-			if (n + 1 < argc) {
+            if (n + 1 < argc) {
+                addToCountedListOfStrings(argv[n + 1], &nAltOptIn, &altOptInList);
+            } else {
+                usage();
+            }
+            n++;
+        } else if (!strcmp(argv[n], "-nonAltContigName")) {
+            if (n + 1 < argc) {
+                addToCountedListOfStrings(argv[n + 1], &nAltOptOut, &altOptOutList);
+            } else {
+                usage();
+            }
+            n++;
+        } else if (!strcmp(argv[n], "-altContigFile")) {
+            if (n + 1 < argc) {
                 DataReader* inputFile = getDefaultOrGzipDataReader(argv[n + 1]);
-				if (NULL == inputFile) {
-					WriteErrorMessage("Unable to open alt contig list file %s\n", argv[n + 1]);
-					soft_exit(1);
-				}
-				char *contigNameBuffer = NULL;
-				int contigNameBufferSize = 0;
+                if (NULL == inputFile) {
+                    WriteErrorMessage("Unable to open alt contig list file %s\n", argv[n + 1]);
+                    soft_exit(1);
+                }
+                char *contigNameBuffer = NULL;
+                int contigNameBufferSize = 0;
 
-				while (NULL != reallocatingFgets(&contigNameBuffer, &contigNameBufferSize, inputFile)) {
-					if (NULL != strchr(contigNameBuffer, '\n')) {
-						*strchr(contigNameBuffer, '\n') = '\0';
-					}
-					if (NULL != strchr(contigNameBuffer, '\r')) {
-						*strchr(contigNameBuffer, '\r') = '\0';
-					}
-					addToCountedListOfStrings(contigNameBuffer, &nAltOptIn, &altOptInList);
-				} // while we have an input string.
+                while (NULL != reallocatingFgets(&contigNameBuffer, &contigNameBufferSize, inputFile)) {
+                    if (NULL != strchr(contigNameBuffer, '\n')) {
+                        *strchr(contigNameBuffer, '\n') = '\0';
+                    }
+                    if (NULL != strchr(contigNameBuffer, '\r')) {
+                        *strchr(contigNameBuffer, '\r') = '\0';
+                    }
+                    addToCountedListOfStrings(contigNameBuffer, &nAltOptIn, &altOptInList);
+                } // while we have an input string.
 
-				delete inputFile;
-				delete[] contigNameBuffer;
-			} else {
-				usage();
-			}
-			n++;
-		} else if (!strcmp(argv[n], "-nonAltContigFile")) {
-			if (n + 1 < argc) {
-				DataReader *inputFile = getDefaultOrGzipDataReader(argv[n + 1]);
-				if (NULL == inputFile) {
-					WriteErrorMessage("Unable to open non-alt contig list file %s\n", argv[n + 1]);
-					soft_exit(1);
-				}
-				char *contigNameBuffer = NULL;
-				int contigNameBufferSize = 0;
+                delete inputFile;
+                delete[] contigNameBuffer;
+            } else {
+                usage();
+            }
+            n++;
+        } else if (!strcmp(argv[n], "-nonAltContigFile")) {
+            if (n + 1 < argc) {
+                DataReader *inputFile = getDefaultOrGzipDataReader(argv[n + 1]);
+                if (NULL == inputFile) {
+                    WriteErrorMessage("Unable to open non-alt contig list file %s\n", argv[n + 1]);
+                    soft_exit(1);
+                }
+                char *contigNameBuffer = NULL;
+                int contigNameBufferSize = 0;
 
-				while (NULL != reallocatingFgets(&contigNameBuffer, &contigNameBufferSize, inputFile)) {
-					if (NULL != strchr(contigNameBuffer, '\n')) {
-						*strchr(contigNameBuffer, '\n') = '\0';
-					}
-					if (NULL != strchr(contigNameBuffer, '\r')) {
-						*strchr(contigNameBuffer, '\r') = '\0';
-					}
-					addToCountedListOfStrings(contigNameBuffer, &nAltOptOut, &altOptOutList);
-				} // while we have an input string.
+                while (NULL != reallocatingFgets(&contigNameBuffer, &contigNameBufferSize, inputFile)) {
+                    if (NULL != strchr(contigNameBuffer, '\n')) {
+                        *strchr(contigNameBuffer, '\n') = '\0';
+                    }
+                    if (NULL != strchr(contigNameBuffer, '\r')) {
+                        *strchr(contigNameBuffer, '\r') = '\0';
+                    }
+                    addToCountedListOfStrings(contigNameBuffer, &nAltOptOut, &altOptOutList);
+                } // while we have an input string.
 
-				delete inputFile;
-				delete[] contigNameBuffer;
-			} else {
-				usage();
-			}
-			n++;
-		} else if (!strcmp(argv[n], "-altLiftoverFile")) {
+                delete inputFile;
+                delete[] contigNameBuffer;
+            } else {
+                usage();
+            }
+            n++;
+        } else if (!strcmp(argv[n], "-altLiftoverFile")) {
             if (n + 1 < argc) {
                 DataReader* inputFile = getDefaultOrGzipDataReader(argv[n + 1]);
                 
@@ -452,17 +452,17 @@ GenomeIndex::runIndexer(
         WriteStatusMessage("Auto-set locationSize to %d\n", locationSize);
     }
 
-	if ((unsigned)seedLen * 2 < keySizeInBytes * 8) {
-		WriteErrorMessage("You must specify a smaller keysize or a larger seed size.  The seed must be big enough to fill the key\n"
-			"and takes two bits per base of seed.\n");
-		soft_exit(1);
-	}
+    if ((unsigned)seedLen * 2 < keySizeInBytes * 8) {
+        WriteErrorMessage("You must specify a smaller keysize or a larger seed size.  The seed must be big enough to fill the key\n"
+            "and takes two bits per base of seed.\n");
+        soft_exit(1);
+    }
 
-	if (seedLen * 2 - keySizeInBytes * 8 > 16) {
-		WriteErrorMessage("You must specify a biger keysize or smaller seed len.  SNAP restricts the number of hash tables to 4^8,\n"
-			"and needs 4^{excess seed len} hash tables, where excess seed len is the seed size minus the four times the key size.\n");
-		soft_exit(1);
-	}
+    if (seedLen * 2 - keySizeInBytes * 8 > 16) {
+        WriteErrorMessage("You must specify a biger keysize or smaller seed len.  SNAP restricts the number of hash tables to 4^8,\n"
+            "and needs 4^{excess seed len} hash tables, where excess seed len is the seed size minus the four times the key size.\n");
+        soft_exit(1);
+    }
 
     WriteStatusMessage("Hash table slack %lf\nLoading FASTA file '%s' into memory...", slack, fastaFile);
 
@@ -483,13 +483,13 @@ GenomeIndex::runIndexer(
     char contigCountBuffer[commafiedBufferSize];
     char altContigCountBuffer[commafiedBufferSize];
 
-	WriteStatusMessage("Genome has %s contigs, of which %s are ALTs\n", FormatUIntWithCommas(genome->getNumContigs(), contigCountBuffer, commafiedBufferSize), 
+    WriteStatusMessage("Genome has %s contigs, of which %s are ALTs\n", FormatUIntWithCommas(genome->getNumContigs(), contigCountBuffer, commafiedBufferSize), 
                         FormatUIntWithCommas(genome->getNumALTContigs(), altContigCountBuffer, commafiedBufferSize));
 
     GenomeDistance nBases = genome->getCountOfBases();
 
     if (!GenomeIndex::BuildIndexToDirectory(genome, seedLen, slack, outputDir, maxThreads, chromosomePadding, forceExact, keySizeInBytes, 
-										    large, histogramFileName, locationSize, smallMemory)) {
+                                            large, histogramFileName, locationSize, smallMemory)) {
         WriteErrorMessage("Genome index build failed\n");
         soft_exit(1);
     }
@@ -526,9 +526,9 @@ SetInvalidGenomeLocation(unsigned locationSize)
     bool
 GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double slack, const char *directoryName,
                                     unsigned maxThreads, unsigned chromosomePaddingSize, bool forceExact, unsigned hashTableKeySize, 
-									bool large, const char *histogramFileName, unsigned locationSize, bool smallMemory)
+                                    bool large, const char *histogramFileName, unsigned locationSize, bool smallMemory)
 {
-	PreventMachineHibernationWhileThisThreadIsAlive();
+    PreventMachineHibernationWhileThisThreadIsAlive();
 
     SetInvalidGenomeLocation(locationSize);
 
@@ -550,17 +550,17 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
     int filenameBufferSize = (int)(strlen(directoryName) + 1 + __max(strlen(GenomeIndexFileName), __max(strlen(OverflowTableFileName), __max(strlen(GenomeIndexHashFileName), strlen(GenomeFileName)))) + 1);
     char *filenameBuffer = new char[filenameBufferSize];
     
-	WriteStatusMessage("Saving genome...");
-	_int64 start = timeInMillis();
+    WriteStatusMessage("Saving genome...");
+    _int64 start = timeInMillis();
     snprintf(filenameBuffer, filenameBufferSize, "%s%c%s", directoryName, PATH_SEP, GenomeFileName);
     if (!genome->saveToFile(filenameBuffer)) {
         WriteErrorMessage("GenomeIndex::saveToDirectory: Failed to save the genome itself\n");
         delete[] filenameBuffer;
         return false;
     }
-	WriteStatusMessage("%llds\n", (timeInMillis() + 500 - start) / 1000);
+    WriteStatusMessage("%llds\n", (timeInMillis() + 500 - start) / 1000);
 
-	GenomeIndex *index = new GenomeIndex();
+    GenomeIndex *index = new GenomeIndex();
     index->genome = NULL;   // We always delete the index when we're done, but we delete the genome first to save space during the overflow table build.
 
     GenomeDistance countOfBases = genome->getCountOfBases();
@@ -592,7 +592,7 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
     // AGCT), in which case only the first integer is used.
     //
 
-	OverflowBackpointerAnchor *overflowAnchor = new OverflowBackpointerAnchor(__min(((locationSize == 8) ? (_int64)0x8effffffffffffff : GenomeLocationAsInt64(InvalidGenomeLocation)) - countOfBases, countOfBases));   // i.e., as much as the address space will allow.
+    OverflowBackpointerAnchor *overflowAnchor = new OverflowBackpointerAnchor(__min(((locationSize == 8) ? (_int64)0x8effffffffffffff : GenomeLocationAsInt64(InvalidGenomeLocation)) - countOfBases, countOfBases));   // i.e., as much as the address space will allow.
    
     WriteStatusMessage("%llds\nBuilding hash tables.\n", (timeInMillis() + 500 - start) / 1000);
   
@@ -621,30 +621,30 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
     runningThreadCount = nThreads;
 
     GenomeDistance nextChunkToProcess = 0;
-	_int64 * lastBackpointerIndexUsedByThread = NULL;
-	ExclusiveLock backpointerSpillLock;
-	FILE *backpointerSpillFile = NULL;
-	char *backpointerSpillFileName = NULL;
-	InitializeExclusiveLock(&backpointerSpillLock);
+    _int64 * lastBackpointerIndexUsedByThread = NULL;
+    ExclusiveLock backpointerSpillLock;
+    FILE *backpointerSpillFile = NULL;
+    char *backpointerSpillFileName = NULL;
+    InitializeExclusiveLock(&backpointerSpillLock);
 
-	if (smallMemory) {
-		lastBackpointerIndexUsedByThread = new _int64[nThreads];
-		for (unsigned i = 0; i < nThreads; i++) {
-			lastBackpointerIndexUsedByThread[i] = 0;
-		}
-#define	BACKPOINTER_TABLE_SPILL_FILE_NAME	"BackpointerTableSpillFile"
-		backpointerSpillFileName = new char[strlen(directoryName) + 1 + strlen(BACKPOINTER_TABLE_SPILL_FILE_NAME) + 1];
-		sprintf(backpointerSpillFileName, "%s%c%s", directoryName, PATH_SEP, BACKPOINTER_TABLE_SPILL_FILE_NAME);
-		backpointerSpillFile = fopen(backpointerSpillFileName, "w+b");
-		if (NULL == backpointerSpillFile) {
-			WriteErrorMessage("Unable to create spill file '%s' for -sm\n", backpointerSpillFileName);
-			soft_exit(1);
-		}
-	}
+    if (smallMemory) {
+        lastBackpointerIndexUsedByThread = new _int64[nThreads];
+        for (unsigned i = 0; i < nThreads; i++) {
+            lastBackpointerIndexUsedByThread[i] = 0;
+        }
+#define    BACKPOINTER_TABLE_SPILL_FILE_NAME    "BackpointerTableSpillFile"
+        backpointerSpillFileName = new char[strlen(directoryName) + 1 + strlen(BACKPOINTER_TABLE_SPILL_FILE_NAME) + 1];
+        sprintf(backpointerSpillFileName, "%s%c%s", directoryName, PATH_SEP, BACKPOINTER_TABLE_SPILL_FILE_NAME);
+        backpointerSpillFile = fopen(backpointerSpillFileName, "w+b");
+        if (NULL == backpointerSpillFile) {
+            WriteErrorMessage("Unable to create spill file '%s' for -sm\n", backpointerSpillFileName);
+            soft_exit(1);
+        }
+    }
 
     for (unsigned i = 0; i < nThreads; i++) {
-		threadContexts[i].whichThread = i;
-		threadContexts[i].nThreads = nThreads;
+        threadContexts[i].whichThread = i;
+        threadContexts[i].nThreads = nThreads;
         threadContexts[i].doneObject = &doneObject;
         threadContexts[i].genome = genome;
         threadContexts[i].genomeChunkStart = nextChunkToProcess;
@@ -663,23 +663,23 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
         threadContexts[i].seedsWithMultipleOccurrences = &seedsWithMultipleOccurrences;
         threadContexts[i].genomeLocationsInOverflowTable = &genomeLocationsInOverflowTable;
         threadContexts[i].bothComplementsUsed = &bothComplementsUsed;
-		threadContexts[i].overflowAnchor = overflowAnchor;
+        threadContexts[i].overflowAnchor = overflowAnchor;
         threadContexts[i].nextOverflowBackpointer = &nextOverflowBackpointer;
         threadContexts[i].hashTableLocks = hashTableLocks;
         threadContexts[i].hashTableKeySize = hashTableKeySize;
-		threadContexts[i].large = large;
+        threadContexts[i].large = large;
         threadContexts[i].locationSize = locationSize;
-		threadContexts[i].backpointerSpillLock = &backpointerSpillLock;
-		threadContexts[i].lastBackpointerIndexUsedByThread = lastBackpointerIndexUsedByThread;
-		threadContexts[i].backpointerSpillFile = backpointerSpillFile;
+        threadContexts[i].backpointerSpillLock = &backpointerSpillLock;
+        threadContexts[i].lastBackpointerIndexUsedByThread = lastBackpointerIndexUsedByThread;
+        threadContexts[i].backpointerSpillFile = backpointerSpillFile;
 
         StartNewThread(BuildHashTablesWorkerThreadMain, &threadContexts[i]);
     }
 
     WaitForSingleWaiterObject(&doneObject);
     DestroySingleWaiterObject(&doneObject);
-	DestroyExclusiveLock(&backpointerSpillLock);
-	delete[] lastBackpointerIndexUsedByThread;
+    DestroyExclusiveLock(&backpointerSpillLock);
+    delete[] lastBackpointerIndexUsedByThread;
 
     if (locationSize != 8 && seedsWithMultipleOccurrences + genomeLocationsInOverflowTable + (_int64)genome->getCountOfBases() > ((_int64)1 << (8 * locationSize)) - 15) { // Only really need -1 for InvalidGenomeLocation, the rest is just spare
         WriteErrorMessage("Ran out of overflow table namespace. This genome cannot be indexed with this seed and location size.  Increase at least one.\n");
@@ -720,37 +720,37 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
     delete genome;
     genome = NULL;
 
-	char *halfBuiltHashTableSpillFileName = NULL;
+    char *halfBuiltHashTableSpillFileName = NULL;
 
-	if (smallMemory) {
-		//
-		// In the hash table build, we use the backpointer table sequentially, and the hash tables randomly.  In the
-		// overflow table build, it's the opposite.  So, we spill out the half-built hash tables (except for #0, which
-		// we need immediately anyway), and then load back in the backpointer table.
-		//
-		_int64 startSpill = timeInMillis();
-		WriteStatusMessage("Spilling half-built hash tables to disk..");
-#define	HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME "HalfBuiltHashTables"
-		halfBuiltHashTableSpillFileName = new char[strlen(directoryName) + 1 + strlen(HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME) + 20];	// +20 is for the number and trailing null
+    if (smallMemory) {
+        //
+        // In the hash table build, we use the backpointer table sequentially, and the hash tables randomly.  In the
+        // overflow table build, it's the opposite.  So, we spill out the half-built hash tables (except for #0, which
+        // we need immediately anyway), and then load back in the backpointer table.
+        //
+        _int64 startSpill = timeInMillis();
+        WriteStatusMessage("Spilling half-built hash tables to disk..");
+#define    HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME "HalfBuiltHashTables"
+        halfBuiltHashTableSpillFileName = new char[strlen(directoryName) + 1 + strlen(HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME) + 20];    // +20 is for the number and trailing null
 
-		for (unsigned i = 1; i < nHashTables; i++) {
-			sprintf(halfBuiltHashTableSpillFileName, "%s%c%s.%d", directoryName, PATH_SEP, HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME, i);
-			size_t bytesWritten;
-			hashTables[i]->saveToFile(halfBuiltHashTableSpillFileName, &bytesWritten);
-			delete hashTables[i];
-			hashTables[i] = NULL;
-		}
+        for (unsigned i = 1; i < nHashTables; i++) {
+            sprintf(halfBuiltHashTableSpillFileName, "%s%c%s.%d", directoryName, PATH_SEP, HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME, i);
+            size_t bytesWritten;
+            hashTables[i]->saveToFile(halfBuiltHashTableSpillFileName, &bytesWritten);
+            delete hashTables[i];
+            hashTables[i] = NULL;
+        }
 
-		_int64 spillDone = timeInMillis();
-		WriteStatusMessage("%llds\nReloading backpointer table from disk...", (spillDone - startSpill + 500) / 1000);
+        _int64 spillDone = timeInMillis();
+        WriteStatusMessage("%llds\nReloading backpointer table from disk...", (spillDone - startSpill + 500) / 1000);
 
-		overflowAnchor->loadFromFile(backpointerSpillFile);
-		fclose(backpointerSpillFile);
-		DeleteSingleFile(backpointerSpillFileName);
-		delete[] backpointerSpillFileName;
+        overflowAnchor->loadFromFile(backpointerSpillFile);
+        fclose(backpointerSpillFile);
+        DeleteSingleFile(backpointerSpillFileName);
+        delete[] backpointerSpillFileName;
 
-		WriteStatusMessage("%llds\n", (timeInMillis() - spillDone + 500) / 1000);
-	}
+        WriteStatusMessage("%llds\n", (timeInMillis() - spillDone + 500) / 1000);
+    }
 
     WriteStatusMessage("Building overflow table.\n");
     start = timeInMillis();
@@ -774,10 +774,10 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
         index->overflowTable32 = (unsigned *)BigAlloc(index->overflowTableSize * sizeof(*index->overflowTable32));
     }
 
- 	if ((_int64)index->overflowTableSize + countOfBases >= GenomeLocationAsInt64(InvalidGenomeLocation) - 15) {
-		WriteErrorMessage("Not enough address space to index this genome with this seed size.  Try a larger seed or location size.\n");
-		soft_exit(1);
-	}
+     if ((_int64)index->overflowTableSize + countOfBases >= GenomeLocationAsInt64(InvalidGenomeLocation) - 15) {
+        WriteErrorMessage("Not enough address space to index this genome with this seed size.  Try a larger seed or location size.\n");
+        soft_exit(1);
+    }
 
     _uint64 nBackpointersProcessed = 0;
     _int64 lastPrintTime = timeInMillis();
@@ -794,11 +794,11 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
         }
     }
 
-	//
-	// Build the overflow table by walking each of the hash tables and looking for elements to fix up.
-	// Write the hash tables as we go so that we can free their memory on the fly.
-	//
-	snprintf(filenameBuffer,filenameBufferSize,"%s%c%s", directoryName, PATH_SEP, GenomeIndexHashFileName);
+    //
+    // Build the overflow table by walking each of the hash tables and looking for elements to fix up.
+    // Write the hash tables as we go so that we can free their memory on the fly.
+    //
+    snprintf(filenameBuffer,filenameBufferSize,"%s%c%s", directoryName, PATH_SEP, GenomeIndexHashFileName);
     FILE *tablesFile = fopen(filenameBuffer, "wb");
     if (NULL == tablesFile) {
         WriteErrorMessage("Unable to open hash table file '%s'\n", filenameBuffer);
@@ -807,26 +807,26 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
 
     size_t totalBytesWritten = 0;
     _uint64 overflowTableIndex = 0;
-	_uint64 duplicateSeedsProcessed = 0;
+    _uint64 duplicateSeedsProcessed = 0;
 
-	for (unsigned whichHashTable = 0; whichHashTable < nHashTables; whichHashTable++) {
-		if (NULL == hashTables[whichHashTable]) {
-			_ASSERT(smallMemory);
-			sprintf(halfBuiltHashTableSpillFileName, "%s%c%s.%d", directoryName, PATH_SEP, HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME, whichHashTable);
-			GenericFile_stdio *file = GenericFile_stdio::open(halfBuiltHashTableSpillFileName);
-			if (NULL == file) {
-				WriteErrorMessage("Unable to open file '%s' to reload spilled hash table.\n", halfBuiltHashTableSpillFileName);
-				soft_exit(1);
-			}
-			hashTables[whichHashTable] = SNAPHashTable::loadFromGenericFile(file);
-			file->close();
-			DeleteSingleFile(halfBuiltHashTableSpillFileName);
-		}
+    for (unsigned whichHashTable = 0; whichHashTable < nHashTables; whichHashTable++) {
+        if (NULL == hashTables[whichHashTable]) {
+            _ASSERT(smallMemory);
+            sprintf(halfBuiltHashTableSpillFileName, "%s%c%s.%d", directoryName, PATH_SEP, HALF_BUILT_HASH_TABLE_SPILL_FILE_NAME, whichHashTable);
+            GenericFile_stdio *file = GenericFile_stdio::open(halfBuiltHashTableSpillFileName);
+            if (NULL == file) {
+                WriteErrorMessage("Unable to open file '%s' to reload spilled hash table.\n", halfBuiltHashTableSpillFileName);
+                soft_exit(1);
+            }
+            hashTables[whichHashTable] = SNAPHashTable::loadFromGenericFile(file);
+            file->close();
+            DeleteSingleFile(halfBuiltHashTableSpillFileName);
+        }
 
-		for (_uint64 whichEntry = 0; whichEntry < hashTables[whichHashTable]->GetTableSize(); whichEntry++) {
-			unsigned *values32 = (unsigned *)hashTables[whichHashTable]->getEntryValues(whichEntry);
+        for (_uint64 whichEntry = 0; whichEntry < hashTables[whichHashTable]->GetTableSize(); whichEntry++) {
+            unsigned *values32 = (unsigned *)hashTables[whichHashTable]->getEntryValues(whichEntry);
             char *values64 = (char *)values32;  // char * because it's variable sized
-			for (int i = 0; i < (large ? NUM_DIRECTIONS : 1); i++) {
+            for (int i = 0; i < (large ? NUM_DIRECTIONS : 1); i++) {
                 _int64 value;
                 if (locationSize > 4) {
                     value = 0;
@@ -834,96 +834,96 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
                 } else {
                     value = values32[i];
                 }
-				if (value >= countOfBases && value != GenomeLocationAsInt64(InvalidGenomeLocation) && value != GenomeLocationAsInt64(InvalidGenomeLocation) - 1) {
-					//
-					// This is an overflow pointer.  Fix it up.  Count the number of occurrences of this
-					// seed by walking the overflow chain.
-					//
-					duplicateSeedsProcessed++;
+                if (value >= countOfBases && value != GenomeLocationAsInt64(InvalidGenomeLocation) && value != GenomeLocationAsInt64(InvalidGenomeLocation) - 1) {
+                    //
+                    // This is an overflow pointer.  Fix it up.  Count the number of occurrences of this
+                    // seed by walking the overflow chain.
+                    //
+                    duplicateSeedsProcessed++;
 
-					_uint64 nOccurrences = 0;
-					_int64 backpointerIndex = value - countOfBases;
-					while (backpointerIndex != -1) {
-						nOccurrences++;
-						OverflowBackpointer *backpointer = overflowAnchor->getBackpointer(backpointerIndex);
-						_ASSERT(overflowTableIndex + nOccurrences < index->overflowTableSize);
+                    _uint64 nOccurrences = 0;
+                    _int64 backpointerIndex = value - countOfBases;
+                    while (backpointerIndex != -1) {
+                        nOccurrences++;
+                        OverflowBackpointer *backpointer = overflowAnchor->getBackpointer(backpointerIndex);
+                        _ASSERT(overflowTableIndex + nOccurrences < index->overflowTableSize);
                         if (locationSize > 4) {
-						    index->overflowTable64[overflowTableIndex + nOccurrences] = GenomeLocationAsInt64(backpointer->genomeLocation);
+                            index->overflowTable64[overflowTableIndex + nOccurrences] = GenomeLocationAsInt64(backpointer->genomeLocation);
                         } else {
-						    index->overflowTable32[overflowTableIndex + nOccurrences] = GenomeLocationAsInt32(backpointer->genomeLocation);
+                            index->overflowTable32[overflowTableIndex + nOccurrences] = GenomeLocationAsInt32(backpointer->genomeLocation);
                         }
-						backpointerIndex = backpointer->nextIndex;
-					}
+                        backpointerIndex = backpointer->nextIndex;
+                    }
 
-					_ASSERT(nOccurrences > 1);
+                    _ASSERT(nOccurrences > 1);
 
-					//
-					// Fill the count in as the first thing in the overflow table
-					// and patch the value into the hash table.
-					//
+                    //
+                    // Fill the count in as the first thing in the overflow table
+                    // and patch the value into the hash table.
+                    //
                     _ASSERT(overflowTableIndex < index->overflowTableSize);
                     if (locationSize > 4) {
-					    index->overflowTable64[overflowTableIndex] = nOccurrences;
+                        index->overflowTable64[overflowTableIndex] = nOccurrences;
                         _int64 newValue = overflowTableIndex + countOfBases;
                         memcpy(values64 + (_int64)locationSize * i, &newValue, locationSize);   // Assumes little endian
                     } else {
-					    index->overflowTable32[overflowTableIndex] = (unsigned)nOccurrences;
+                        index->overflowTable32[overflowTableIndex] = (unsigned)nOccurrences;
                         values32[i] = (unsigned)(overflowTableIndex + countOfBases);
                     }
 
-					overflowTableIndex += 1 + nOccurrences;
+                    overflowTableIndex += 1 + nOccurrences;
                     _ASSERT(overflowTableIndex <= index->overflowTableSize);
-					nBackpointersProcessed += nOccurrences;
+                    nBackpointersProcessed += nOccurrences;
 
-					//
-					// Sort the overflow table entries, because the paired-end aligner relies on this.  Sort them backwards, because that's
-					// what it expects.  For those who are desparately curious, this is because it was originally built this way by accident
-					// before there was any concept of doing binary search over a seed's hits.  When the binary search was built, it relied
-					// on this.  Then, when the index build was parallelized it was easier just to preserve the old order than to change the
-					// code in the aligner.  So now you know.
-					//
+                    //
+                    // Sort the overflow table entries, because the paired-end aligner relies on this.  Sort them backwards, because that's
+                    // what it expects.  For those who are desparately curious, this is because it was originally built this way by accident
+                    // before there was any concept of doing binary search over a seed's hits.  When the binary search was built, it relied
+                    // on this.  Then, when the index build was parallelized it was easier just to preserve the old order than to change the
+                    // code in the aligner.  So now you know.
+                    //
                     if (locationSize > 4) { 
- 					    qsort(&index->overflowTable64[overflowTableIndex -nOccurrences], nOccurrences, sizeof(index->overflowTable64[0]), BackwardsInt64Compare);
+                         qsort(&index->overflowTable64[overflowTableIndex -nOccurrences], nOccurrences, sizeof(index->overflowTable64[0]), BackwardsInt64Compare);
                    } else {
-					    qsort(&index->overflowTable32[overflowTableIndex -nOccurrences], nOccurrences, sizeof(index->overflowTable32[0]), BackwardsUnsignedCompare);
+                        qsort(&index->overflowTable32[overflowTableIndex -nOccurrences], nOccurrences, sizeof(index->overflowTable32[0]), BackwardsUnsignedCompare);
                     }
 
-					if (timeInMillis() - lastPrintTime > 60 * 1000) {
+                    if (timeInMillis() - lastPrintTime > 60 * 1000) {
                         char doneDuplicateSeedsBuffer[commafiedBufferSize];
                         char totalDuplicateSeedsBuffer[commafiedBufferSize];
                         char doneBackpointersBuffer[commafiedBufferSize];
                         char totalBackpointersBuffer[commafiedBufferSize];
 
-						WriteStatusMessage("%s/%s duplicate seeds, %s/%s backpointers, %d/%d hash tables processed\n", 
+                        WriteStatusMessage("%s/%s duplicate seeds, %s/%s backpointers, %d/%d hash tables processed\n", 
                             FormatUIntWithCommas(duplicateSeedsProcessed, doneDuplicateSeedsBuffer, commafiedBufferSize),
                             FormatUIntWithCommas(seedsWithMultipleOccurrences, totalDuplicateSeedsBuffer, commafiedBufferSize),
                             FormatUIntWithCommas(nBackpointersProcessed, doneBackpointersBuffer, commafiedBufferSize),
                             FormatUIntWithCommas(genomeLocationsInOverflowTable, totalBackpointersBuffer, commafiedBufferSize),
-							whichHashTable, nHashTables);
-						lastPrintTime = timeInMillis();
-					}
+                            whichHashTable, nHashTables);
+                        lastPrintTime = timeInMillis();
+                    }
 
-					//
-					// If we're building a histogram, update it.
-					//
-					if (buildHistogram) {
-						if (nOccurrences > maxHistogramEntry) {
-							countOfTooBigForHistogram++;
-							sumOfTooBigForHistogram += nOccurrences;
-						} else {
-							histogram[nOccurrences]++;
-						}
-						largestSeed = __max(largestSeed, nOccurrences);
-					}
+                    //
+                    // If we're building a histogram, update it.
+                    //
+                    if (buildHistogram) {
+                        if (nOccurrences > maxHistogramEntry) {
+                            countOfTooBigForHistogram++;
+                            sumOfTooBigForHistogram += nOccurrences;
+                        } else {
+                            histogram[nOccurrences]++;
+                        }
+                        largestSeed = __max(largestSeed, nOccurrences);
+                    }
 
-				} // If this entry needs patching
-			} // forward and RC if large table
-		} // for each entry in the hash table
+                } // If this entry needs patching
+            } // forward and RC if large table
+        } // for each entry in the hash table
 
- 		//
-		// We're done with this hash table, free it to releive memory pressure.
-		//
-		size_t bytesWrittenThisHashTable;
+         //
+        // We're done with this hash table, free it to releive memory pressure.
+        //
+        size_t bytesWrittenThisHashTable;
         if (!hashTables[whichHashTable]->saveToFile(tablesFile, &bytesWrittenThisHashTable)) {
             WriteErrorMessage("GenomeIndex::saveToDirectory: Failed to save hash table %d\n", whichHashTable);
             delete[] filenameBuffer;
@@ -931,9 +931,9 @@ GenomeIndex::BuildIndexToDirectory(const Genome *genome, int seedLen, double sla
         }
         totalBytesWritten += bytesWrittenThisHashTable;
 
-		delete hashTables[whichHashTable];
-		hashTables[whichHashTable] = NULL;
-	} // for each hash table
+        delete hashTables[whichHashTable];
+        hashTables[whichHashTable] = NULL;
+    } // for each hash table
 
     fclose(tablesFile);
 
@@ -1029,7 +1029,7 @@ SNAPHashTable** GenomeIndex::allocateHashTables(
     double          slack,
     int             seedLen,
     unsigned        hashTableKeySize,
-	bool			large,
+    bool            large,
     unsigned        locationSize,
     double*         biasTable)
 {
@@ -1152,8 +1152,8 @@ GenomeIndex::~GenomeIndex()
 {
     dropIndex();
 
-	delete genome;
-	genome = NULL;
+    delete genome;
+    genome = NULL;
 
 }
 
@@ -1182,24 +1182,24 @@ GenomeIndex::ComputeBiasTable(const Genome* genome, int seedLen, double* table, 
         soft_exit(1);
     }
     
-	_uint64 *numExactSeeds = NULL;
+    _uint64 *numExactSeeds = NULL;
     vector<ApproximateCounter> approxCounters(nHashTables);
 
     _int64 validSeeds = 0;
 
     if (computeExactly) {
-		numExactSeeds = new _uint64[nHashTables];
-		for (unsigned i = 0; i < nHashTables; i++) {
-			numExactSeeds[i] = 0;
-		}
+        numExactSeeds = new _uint64[nHashTables];
+        for (unsigned i = 0; i < nHashTables; i++) {
+            numExactSeeds[i] = 0;
+        }
 
-		//
-		// Create a hash table to record all of the seeds we've already seen.  The key is the seed, and the value is just one byte
-		// that the hash table package needs to be able to differentiate empty from non-empty entries.  The *11/10 is to leave some slack
-		// in the hash table.  In any case, this table should be smaller than the final index (because it doesn't need
-		// any genome locations, not to mention an overflow table), so it should fit in memory.
-		//
-		SNAPHashTable *seedsSeen = new SNAPHashTable((countOfBases * 11) / 10, ((seedLen + 3) * 2) / 8, 1, 1, 0xff);
+        //
+        // Create a hash table to record all of the seeds we've already seen.  The key is the seed, and the value is just one byte
+        // that the hash table package needs to be able to differentiate empty from non-empty entries.  The *11/10 is to leave some slack
+        // in the hash table.  In any case, this table should be smaller than the final index (because it doesn't need
+        // any genome locations, not to mention an overflow table), so it should fit in memory.
+        //
+        SNAPHashTable *seedsSeen = new SNAPHashTable((countOfBases * 11) / 10, ((seedLen + 3) * 2) / 8, 1, 1, 0xff);
         for (_int64 i = 0; i < countOfBases - seedLen; i++) {
             if (i % 100000000 == 0) {
                 WriteStatusMessage("Bias computation: %lld / %lld\n",(_int64)i, (_int64)countOfBases);
@@ -1222,26 +1222,26 @@ GenomeIndex::ComputeBiasTable(const Genome* genome, int seedLen, double* table, 
             Seed seed(bases, seedLen);
             validSeeds++;
 
-			if (large && seed.isBiggerThanItsReverseComplement()) {
-				// For large hash tables, because seeds and their reverse complements are stored
-				// together, figure out which one is used for the hash table key, and use that
-				// one.
-				seed = ~seed;
-			}
+            if (large && seed.isBiggerThanItsReverseComplement()) {
+                // For large hash tables, because seeds and their reverse complements are stored
+                // together, figure out which one is used for the hash table key, and use that
+                // one.
+                seed = ~seed;
+            }
 
-			_ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
+            _ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
 
 
-			if (NULL == seedsSeen->GetFirstValueForKey(seed.getBases())) {
-				_uint64 value = 42;
-				seedsSeen->Insert(seed.getBases(), &value);
-				numExactSeeds[seed.getHighBases(hashTableKeySize)]++;
-			}
+            if (NULL == seedsSeen->GetFirstValueForKey(seed.getBases())) {
+                _uint64 value = 42;
+                seedsSeen->Insert(seed.getBases(), &value);
+                numExactSeeds[seed.getHighBases(hashTableKeySize)]++;
+            }
         }
 
 //      for (unsigned i = 0; i < nHashTables; i++) printf("Hash table %d is predicted to have %lld entries\n", i, numExactSeeds[i]);
-		delete seedsSeen;
-		seedsSeen = NULL;
+        delete seedsSeen;
+        seedsSeen = NULL;
     } else {
         //
         // Run through the table in parallel.
@@ -1279,7 +1279,7 @@ GenomeIndex::ComputeBiasTable(const Genome* genome, int seedLen, double* table, 
             contexts[i].seedLen = seedLen;
             contexts[i].validSeeds = &validSeeds;
             contexts[i].approximateCounterLocks = locks;
-			contexts[i].large = large;
+            contexts[i].large = large;
 
             StartNewThread(ComputeBiasTableWorkerThreadMain, &contexts[i]);
         }
@@ -1301,11 +1301,11 @@ GenomeIndex::ComputeBiasTable(const Genome* genome, int seedLen, double* table, 
 
     for (unsigned i = 0; i < nHashTables; i++) {
         _uint64 count = computeExactly ? numExactSeeds[i] : approxCounters[i].getCount();
-		table[i] = ((double)count * nHashTables) / (double)countOfBases;
+        table[i] = ((double)count * nHashTables) / (double)countOfBases;
     }
 
-	delete numExactSeeds;
-	numExactSeeds = NULL;
+    delete numExactSeeds;
+    numExactSeeds = NULL;
 
     WriteStatusMessage("Computed bias table in %llds\n", (timeInMillis() + 500 - start) / 1000);
 }
@@ -1337,7 +1337,7 @@ struct PerCounterBatch {
 GenomeIndex::ComputeBiasTableWorkerThreadMain(void *param)
 {
     ComputeBiasTableThreadContext *context = (ComputeBiasTableThreadContext *)param;
-	bool large = context->large;
+    bool large = context->large;
 
     GenomeDistance countOfBases = context->genome->getCountOfBases();
     _int64 validSeeds = 0;
@@ -1373,35 +1373,35 @@ GenomeIndex::ComputeBiasTableWorkerThreadMain(void *param)
             Seed seed(bases, context->seedLen);
             validSeeds++;
 
-			if (large && seed.isBiggerThanItsReverseComplement()) {
-				//
-				// Figure out if we're using this base or its complement.
-				//
-				seed = ~seed;       // Couldn't resist using ~ for this.
-			}
+            if (large && seed.isBiggerThanItsReverseComplement()) {
+                //
+                // Figure out if we're using this base or its complement.
+                //
+                seed = ~seed;       // Couldn't resist using ~ for this.
+            }
 
-			unsigned whichHashTable = seed.getHighBases(context->hashTableKeySize);
+            unsigned whichHashTable = seed.getHighBases(context->hashTableKeySize);
 
-			_ASSERT(whichHashTable < context->nHashTables);
+            _ASSERT(whichHashTable < context->nHashTables);
 
-			if (batches[whichHashTable].addSeed(seed.getLowBases(context->hashTableKeySize))) {
-				PerCounterBatch *batch = &batches[whichHashTable];
-				AcquireExclusiveLock(&context->approximateCounterLocks[whichHashTable]);
-				batch->apply(&(*context->approxCounters)[whichHashTable]);    
-				ReleaseExclusiveLock(&context->approximateCounterLocks[whichHashTable]);
+            if (batches[whichHashTable].addSeed(seed.getLowBases(context->hashTableKeySize))) {
+                PerCounterBatch *batch = &batches[whichHashTable];
+                AcquireExclusiveLock(&context->approximateCounterLocks[whichHashTable]);
+                batch->apply(&(*context->approxCounters)[whichHashTable]);    
+                ReleaseExclusiveLock(&context->approximateCounterLocks[whichHashTable]);
 
-				_int64 basesProcessed = InterlockedAdd64AndReturnNewValue(context->nBasesProcessed, PerCounterBatch::nSeedsPerBatch + unrecordedSkippedSeeds);
+                _int64 basesProcessed = InterlockedAdd64AndReturnNewValue(context->nBasesProcessed, PerCounterBatch::nSeedsPerBatch + unrecordedSkippedSeeds);
 
-				if ((_uint64)basesProcessed / printBatchSize > ((_uint64)basesProcessed - PerCounterBatch::nSeedsPerBatch - unrecordedSkippedSeeds)/printBatchSize) {
+                if ((_uint64)basesProcessed / printBatchSize > ((_uint64)basesProcessed - PerCounterBatch::nSeedsPerBatch - unrecordedSkippedSeeds)/printBatchSize) {
                     const int commafiedBufferSize = 40;
                     char basesProcessedBuffer[commafiedBufferSize];
                     char countOfBasesBuffer[commafiedBufferSize];
 
-					WriteStatusMessage("Bias computation: %s / %s\n", FormatUIntWithCommas((basesProcessed/printBatchSize)*printBatchSize, basesProcessedBuffer, commafiedBufferSize), 
+                    WriteStatusMessage("Bias computation: %s / %s\n", FormatUIntWithCommas((basesProcessed/printBatchSize)*printBatchSize, basesProcessedBuffer, commafiedBufferSize), 
                                        FormatUIntWithCommas((_int64)countOfBases, countOfBasesBuffer, commafiedBufferSize));
-				}
-				unrecordedSkippedSeeds= 0;  // We've now recorded them.
-			}
+                }
+                unrecordedSkippedSeeds= 0;  // We've now recorded them.
+            }
     }
 
     for (unsigned i = 0; i < context->nHashTables; i++) {
@@ -1450,7 +1450,7 @@ GenomeIndex::BuildHashTablesWorkerThread(BuildHashTablesThreadContext *context)
     GenomeDistance countOfBases = context->genome->getCountOfBases();
     const Genome *genome = context->genome;
     unsigned seedLen = context->seedLen;
-	bool large = context->large;
+    bool large = context->large;
  
     //
     // Batch the insertions into the hash tables, because otherwise we spend all of
@@ -1480,7 +1480,7 @@ GenomeIndex::BuildHashTablesWorkerThread(BuildHashTablesThreadContext *context)
             continue;
         }
 
-		Seed seed(bases, seedLen);
+        Seed seed(bases, seedLen);
 
         indexSeed(genomeLocation, seed, batches, context, &stats, large);
     } // For each genome base in our area
@@ -1512,42 +1512,42 @@ const _int64 GenomeIndex::printPeriod = 100000000;
     void
 GenomeIndex::indexSeed(GenomeLocation genomeLocation, Seed seed, PerHashTableBatch *batches, BuildHashTablesThreadContext *context, IndexBuildStats *stats, bool large)
 {
-	bool usingComplement = large && seed.isBiggerThanItsReverseComplement();
-	if (usingComplement) {
-		seed = ~seed;       // Couldn't resist using ~ for this.
-	}
+    bool usingComplement = large && seed.isBiggerThanItsReverseComplement();
+    if (usingComplement) {
+        seed = ~seed;       // Couldn't resist using ~ for this.
+    }
 
     unsigned whichHashTable = seed.getHighBases(context->hashTableKeySize);
     _ASSERT(whichHashTable < nHashTables);
  
-	if (batches[whichHashTable].addSeed(genomeLocation, seed.getLowBases(context->hashTableKeySize), usingComplement)) {
-		AcquireExclusiveLock(&context->hashTableLocks[whichHashTable]);
-		for (unsigned i = 0; i < batches[whichHashTable].nUsed; i++) {
-			ApplyHashTableUpdate(context, whichHashTable, batches[whichHashTable].entries[i].genomeLocation, 
-				batches[whichHashTable].entries[i].lowBases, batches[whichHashTable].entries[i].usingComplement,
-				&stats->bothComplementsUsed, &stats->genomeLocationsInOverflowTable, &stats->seedsWithMultipleOccurrences, large);
-		}
-		ReleaseExclusiveLock(&context->hashTableLocks[whichHashTable]);
+    if (batches[whichHashTable].addSeed(genomeLocation, seed.getLowBases(context->hashTableKeySize), usingComplement)) {
+        AcquireExclusiveLock(&context->hashTableLocks[whichHashTable]);
+        for (unsigned i = 0; i < batches[whichHashTable].nUsed; i++) {
+            ApplyHashTableUpdate(context, whichHashTable, batches[whichHashTable].entries[i].genomeLocation, 
+                batches[whichHashTable].entries[i].lowBases, batches[whichHashTable].entries[i].usingComplement,
+                &stats->bothComplementsUsed, &stats->genomeLocationsInOverflowTable, &stats->seedsWithMultipleOccurrences, large);
+        }
+        ReleaseExclusiveLock(&context->hashTableLocks[whichHashTable]);
 
-		_int64 newNBasesProcessed = InterlockedAdd64AndReturnNewValue(context->nBasesProcessed, batches[whichHashTable].nUsed + stats->unrecordedSkippedSeeds);
+        _int64 newNBasesProcessed = InterlockedAdd64AndReturnNewValue(context->nBasesProcessed, batches[whichHashTable].nUsed + stats->unrecordedSkippedSeeds);
 
-		if ((unsigned)(newNBasesProcessed / printPeriod) > (unsigned)((newNBasesProcessed - batches[whichHashTable].nUsed - stats->unrecordedSkippedSeeds) / printPeriod)) {
+        if ((unsigned)(newNBasesProcessed / printPeriod) > (unsigned)((newNBasesProcessed - batches[whichHashTable].nUsed - stats->unrecordedSkippedSeeds) / printPeriod)) {
             const int commafiedBufferSize = 40;
             char progressBuffer[commafiedBufferSize];
             char totalBuffer[commafiedBufferSize];
-			WriteStatusMessage("Indexing %s / %s\n", FormatUIntWithCommas((newNBasesProcessed / printPeriod) * printPeriod, progressBuffer,commafiedBufferSize), 
+            WriteStatusMessage("Indexing %s / %s\n", FormatUIntWithCommas((newNBasesProcessed / printPeriod) * printPeriod, progressBuffer,commafiedBufferSize), 
                                 FormatUIntWithCommas(context->genome->getCountOfBases(), totalBuffer, commafiedBufferSize));
-		}
-		stats->unrecordedSkippedSeeds = 0;
-		batches[whichHashTable].clear();
-	} // If we filled a batch
+        }
+        stats->unrecordedSkippedSeeds = 0;
+        batches[whichHashTable].clear();
+    } // If we filled a batch
 }
 
         void 
 GenomeIndex::ApplyHashTableUpdate(BuildHashTablesThreadContext *context, _uint64 whichHashTable, GenomeLocation genomeLocation, _uint64 lowBases, bool usingComplement,
                 _int64 *bothComplementsUsed, _int64 *genomeLocationsInOverflowTable, _int64 *seedsWithMultipleOccurrences, bool large)
 {
-	_ASSERT(large || !usingComplement);
+    _ASSERT(large || !usingComplement);
     GenomeIndex *index = context->index;
     GenomeDistance countOfBases = context->genome->getCountOfBases();
     SNAPHashTable *hashTable = index->hashTables[whichHashTable];
@@ -1555,22 +1555,22 @@ GenomeIndex::ApplyHashTableUpdate(BuildHashTablesThreadContext *context, _uint64
     unsigned *entry32 = (unsigned *)hashTable->SlowLookup(lowBases);  // use SlowLookup because we might have overflowed the table.  Cast is OK because valueSize == 4 when we use entry32
     char *entry64 = (char *)entry32;  // Char * because it's variable sized
     if (NULL == entry64) {
-        SNAPHashTable::ValueType newEntry[2];	// We only use [0] if !large, but it doesn't hurt to declare two
-		if (large) {
-			//
-			// We haven't yet seen either this seed or its complement.  Make a new hash table
-			// entry.
-			//
-			if (!usingComplement) {
-				newEntry[0] = GenomeLocationAsInt64(genomeLocation);
-				newEntry[1] = GenomeLocationAsInt64(InvalidGenomeLocation) - 1; // Use 0xfffffffe for unused, because we gave 0xffffffff to the hash table package.
-			} else{
-				newEntry[0] = GenomeLocationAsInt64(InvalidGenomeLocation) - 1; // Use 0xfffffffe for unused, because we gave 0xffffffff to the hash table package.
-				newEntry[1] = GenomeLocationAsInt64(genomeLocation);
-			}
-		} else {
-			newEntry[0] = GenomeLocationAsInt64(genomeLocation);
-		}
+        SNAPHashTable::ValueType newEntry[2];    // We only use [0] if !large, but it doesn't hurt to declare two
+        if (large) {
+            //
+            // We haven't yet seen either this seed or its complement.  Make a new hash table
+            // entry.
+            //
+            if (!usingComplement) {
+                newEntry[0] = GenomeLocationAsInt64(genomeLocation);
+                newEntry[1] = GenomeLocationAsInt64(InvalidGenomeLocation) - 1; // Use 0xfffffffe for unused, because we gave 0xffffffff to the hash table package.
+            } else{
+                newEntry[0] = GenomeLocationAsInt64(InvalidGenomeLocation) - 1; // Use 0xfffffffe for unused, because we gave 0xffffffff to the hash table package.
+                newEntry[1] = GenomeLocationAsInt64(genomeLocation);
+            }
+        } else {
+            newEntry[0] = GenomeLocationAsInt64(genomeLocation);
+        }
 
         _ASSERT(0 != GenomeLocationAsInt64(genomeLocation));
 
@@ -1651,8 +1651,8 @@ GenomeIndex::ApplyHashTableUpdate(BuildHashTablesThreadContext *context, _uint64
             _int64
 GenomeIndex::AddOverflowBackpointer(
     _int64                       previousOverflowBackpointer,
-	BuildHashTablesThreadContext*context,
-	GenomeLocation               genomeLocation)
+    BuildHashTablesThreadContext*context,
+    GenomeLocation               genomeLocation)
 {
     _int64 overflowBackpointerIndex = InterlockedAdd64AndReturnNewValue(context->nextOverflowBackpointer, 1) - 1;
     OverflowBackpointer *newBackpointer = context->overflowAnchor->getBackpointer(overflowBackpointerIndex);
@@ -1660,16 +1660,16 @@ GenomeIndex::AddOverflowBackpointer(
     newBackpointer->nextIndex = previousOverflowBackpointer;
     newBackpointer->genomeLocation = genomeLocation;
 
-	if (overflowBackpointerIndex % 100000 == 1 && NULL != context->lastBackpointerIndexUsedByThread) {
-		AcquireExclusiveLock(context->backpointerSpillLock);
-		context->lastBackpointerIndexUsedByThread[context->whichThread] = overflowBackpointerIndex - 1;
-		_int64 trimToIndex = context->lastBackpointerIndexUsedByThread[0];
-		for (unsigned i = 1; i < context->nThreads; i++) {
-			trimToIndex = __min(trimToIndex, context->lastBackpointerIndexUsedByThread[i]);
-		}
-		context->overflowAnchor->trimTo(trimToIndex, context->backpointerSpillFile);
-		ReleaseExclusiveLock(context->backpointerSpillLock);
-	}
+    if (overflowBackpointerIndex % 100000 == 1 && NULL != context->lastBackpointerIndexUsedByThread) {
+        AcquireExclusiveLock(context->backpointerSpillLock);
+        context->lastBackpointerIndexUsedByThread[context->whichThread] = overflowBackpointerIndex - 1;
+        _int64 trimToIndex = context->lastBackpointerIndexUsedByThread[0];
+        for (unsigned i = 1; i < context->nThreads; i++) {
+            trimToIndex = __min(trimToIndex, context->lastBackpointerIndexUsedByThread[i]);
+        }
+        context->overflowAnchor->trimTo(trimToIndex, context->backpointerSpillFile);
+        ReleaseExclusiveLock(context->backpointerSpillLock);
+    }
 
     return overflowBackpointerIndex;
 }
@@ -1715,8 +1715,8 @@ GenomeIndex::completeIndexing(PerHashTableBatch *batches, BuildHashTablesThreadC
 
         stats->unrecordedSkippedSeeds = 0; // All except the first time through the loop this will be 0.        
         AcquireExclusiveLock(&context->hashTableLocks[whichHashTable]);
-		for (unsigned i = 0; i < batches[whichHashTable].nUsed; i++) {
-			ApplyHashTableUpdate(context, whichHashTable, batches[whichHashTable].entries[i].genomeLocation, 
+        for (unsigned i = 0; i < batches[whichHashTable].nUsed; i++) {
+            ApplyHashTableUpdate(context, whichHashTable, batches[whichHashTable].entries[i].genomeLocation, 
                 batches[whichHashTable].entries[i].lowBases, batches[whichHashTable].entries[i].usingComplement,
                 &stats->bothComplementsUsed, &stats->genomeLocationsInOverflowTable, 
                 &stats->seedsWithMultipleOccurrences, large);
@@ -1728,111 +1728,111 @@ GenomeIndex::completeIndexing(PerHashTableBatch *batches, BuildHashTablesThreadC
 GenomeIndex::OverflowBackpointerAnchor::OverflowBackpointerAnchor(_int64 maxOverflowEntries_) : maxOverflowEntries(maxOverflowEntries_)
 {
     _ASSERT(maxOverflowEntries > 0);
-	_int64 roundedUpMaxOverflowEntries = (maxOverflowEntries + batchSize - 1) / batchSize * batchSize;	// Round up to the next batch size
+    _int64 roundedUpMaxOverflowEntries = (maxOverflowEntries + batchSize - 1) / batchSize * batchSize;    // Round up to the next batch size
 
-	table = new OverflowBackpointer *[roundedUpMaxOverflowEntries / batchSize];
+    table = new OverflowBackpointer *[roundedUpMaxOverflowEntries / batchSize];
 
-	for (unsigned i = 0; i < roundedUpMaxOverflowEntries / batchSize; i++) {
-		table[i] = NULL;
-	}
+    for (unsigned i = 0; i < roundedUpMaxOverflowEntries / batchSize; i++) {
+        table[i] = NULL;
+    }
 
     InitializeExclusiveLock(&lock);
 }
 
 GenomeIndex::OverflowBackpointerAnchor::~OverflowBackpointerAnchor()
 {
-	for (unsigned i = 0; i < maxOverflowEntries / batchSize; i++) {
-		if (table[i] != NULL) {
-			BigDealloc(table[i]);
-			table[i] = NULL;
-		}
-	}
+    for (unsigned i = 0; i < maxOverflowEntries / batchSize; i++) {
+        if (table[i] != NULL) {
+            BigDealloc(table[i]);
+            table[i] = NULL;
+        }
+    }
 
-	delete [] table;
-	table = NULL;
+    delete [] table;
+    table = NULL;
 
     DestroyExclusiveLock(&lock);
 }
 
-	GenomeIndex::OverflowBackpointer *
+    GenomeIndex::OverflowBackpointer *
 GenomeIndex::OverflowBackpointerAnchor::getBackpointer(_int64 index)
 {
     if (index >= maxOverflowEntries) {
         WriteErrorMessage("Trying to use too many overflow entries.  To index this genome, you either need a larger seed size or a larger location size.\n");
         soft_exit(1);
     }
-	_int64 tableSlot = index / batchSize;
-	if (table[tableSlot] == NULL) {
+    _int64 tableSlot = index / batchSize;
+    if (table[tableSlot] == NULL) {
         AcquireExclusiveLock(&lock);
         if (table[tableSlot] == NULL) {
-			OverflowBackpointer *newTableEntry = (OverflowBackpointer *)BigAlloc(batchSize * sizeof(OverflowBackpointer));
-		    for (unsigned i = 0; i < batchSize; i++) {
-				newTableEntry[i].genomeLocation = 0xffffffffffffffff;
-				newTableEntry[i].nextIndex = 0xffffffffffffffff;
-		    }
+            OverflowBackpointer *newTableEntry = (OverflowBackpointer *)BigAlloc(batchSize * sizeof(OverflowBackpointer));
+            for (unsigned i = 0; i < batchSize; i++) {
+                newTableEntry[i].genomeLocation = 0xffffffffffffffff;
+                newTableEntry[i].nextIndex = 0xffffffffffffffff;
+            }
 
-			//
-			// Don't fill in the table[] pointer until initialization is complete in order to avoid racing with someone writing while we're
-			// initializing.
-			//
-			table[tableSlot] = newTableEntry;
-		}
+            //
+            // Don't fill in the table[] pointer until initialization is complete in order to avoid racing with someone writing while we're
+            // initializing.
+            //
+            table[tableSlot] = newTableEntry;
+        }
         ReleaseExclusiveLock(&lock);
-	} else {
-		if (&spilledTableSlot == table[tableSlot]) {
-			WriteErrorMessage("Looking up spilled table slot.  Something is very wrong.  Try not using -sm and contact the developers.\n");
-			soft_exit(1);
-		}
-	}
-	return &table[tableSlot][index % batchSize];
+    } else {
+        if (&spilledTableSlot == table[tableSlot]) {
+            WriteErrorMessage("Looking up spilled table slot.  Something is very wrong.  Try not using -sm and contact the developers.\n");
+            soft_exit(1);
+        }
+    }
+    return &table[tableSlot][index % batchSize];
 }
 
-	void
+    void
 GenomeIndex::OverflowBackpointerAnchor::trimTo(_int64 trimToIndex, FILE *trimFile)
 {
-	//
-	// Run through the anchor table, and spill out any table slots whose indices are all less than trimToIndex and that aren't
-	// yet spilled out.
-	//
-	for (_int64 tableSlot = 0; (tableSlot + 1) * batchSize < trimToIndex; tableSlot++) {
-		if (&spilledTableSlot != table[tableSlot] && NULL != table[tableSlot]) {
-			if (batchSize != fwrite(table[tableSlot], sizeof(*table[tableSlot]), batchSize, trimFile)) {
-				WriteErrorMessage("Failure writing to trim file.  Maybe you're out of disk space or encountered some other error.  Perhaps try without -sm.\n");
-				soft_exit(1);
-			}
-			BigDealloc((void *)table[tableSlot]);
-			table[tableSlot] = &spilledTableSlot;
-		}
-	}
+    //
+    // Run through the anchor table, and spill out any table slots whose indices are all less than trimToIndex and that aren't
+    // yet spilled out.
+    //
+    for (_int64 tableSlot = 0; (tableSlot + 1) * batchSize < trimToIndex; tableSlot++) {
+        if (&spilledTableSlot != table[tableSlot] && NULL != table[tableSlot]) {
+            if (batchSize != fwrite(table[tableSlot], sizeof(*table[tableSlot]), batchSize, trimFile)) {
+                WriteErrorMessage("Failure writing to trim file.  Maybe you're out of disk space or encountered some other error.  Perhaps try without -sm.\n");
+                soft_exit(1);
+            }
+            BigDealloc((void *)table[tableSlot]);
+            table[tableSlot] = &spilledTableSlot;
+        }
+    }
 }
-	void
+    void
 GenomeIndex::OverflowBackpointerAnchor::loadFromFile(FILE *file)
 {
-	rewind(file);
-	for (int i = 0; i < maxOverflowEntries / batchSize; i++) {
-		if (table[i] == &spilledTableSlot) {
-			table[i] = (OverflowBackpointer *)BigAlloc(batchSize * sizeof(OverflowBackpointer));
-			if (batchSize != fread(table[i], sizeof(OverflowBackpointer), batchSize, file)) {
-				WriteErrorMessage("Failed to read overflow table batch i from spill file\n", i);
-				soft_exit(1);
-			}
-		}
-	}
+    rewind(file);
+    for (int i = 0; i < maxOverflowEntries / batchSize; i++) {
+        if (table[i] == &spilledTableSlot) {
+            table[i] = (OverflowBackpointer *)BigAlloc(batchSize * sizeof(OverflowBackpointer));
+            if (batchSize != fread(table[i], sizeof(OverflowBackpointer), batchSize, file)) {
+                WriteErrorMessage("Failed to read overflow table batch i from spill file\n", i);
+                soft_exit(1);
+            }
+        }
+    }
 }
 
 const unsigned GenomeIndex::OverflowBackpointerAnchor::batchSize = 1024 * 1024;
 GenomeIndex::OverflowBackpointer GenomeIndex::OverflowBackpointerAnchor::spilledTableSlot;
 
-		int
+        int
 GenomeIndex::getMajorVersion()
 {
-	return majorVersion;
+    return majorVersion;
 }
 
-		int
+        int
 GenomeIndex::getMinorVersion()
 {
-	return minorVersion;
+    return minorVersion;
 }
 
         GenomeIndex *
@@ -1877,13 +1877,13 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
     unsigned smallHashTable;
     unsigned locationSize;
     if (10 != (nRead = sscanf(indexFileBuf,"%d %d %d %lld %d %d %d %lld %d %d", &majorVersion, &minorVersion, &nHashTables, &overflowTableSize, &seedLen, &chromosomePadding, 
-											&hashTableKeySize, &hashTablesFileSize, &smallHashTable, &locationSize))) {
+                                            &hashTableKeySize, &hashTablesFileSize, &smallHashTable, &locationSize))) {
         if (3 == nRead || 6 == nRead || 7 == nRead || 9 == nRead) {
             WriteErrorMessage("Indices built by versions before 1.0.4 are no longer supported.  Please rebuild your index.\n");
         } else {
             WriteErrorMessage("GenomeIndex::LoadFromDirectory: didn't read initial values\n");
         }
-        indexFile->close();		
+        indexFile->close();        
         delete indexFile;
         return NULL;
     }
@@ -1906,8 +1906,8 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
     GenomeIndex *index;
     index = new GenomeIndex();
 
-	index->majorVersion = majorVersion;
-	index->minorVersion = minorVersion;
+    index->majorVersion = majorVersion;
+    index->minorVersion = minorVersion;
     index->nHashTables = nHashTables;
     index->overflowTableSize = overflowTableSize;
     index->hashTableKeySize = hashTableKeySize;
@@ -1919,79 +1919,79 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
 
     size_t overflowTableSizeInBytes = (size_t)index->overflowTableSize * overflowEntrySize;
 
-	snprintf(filenameBuffer, filenameBufferSize, "%s%c%s", directoryName, PATH_SEP, GenomeFileName);
-	if (NULL == (index->genome = Genome::loadFromFile(filenameBuffer, chromosomePadding, 0, 0, map))) {
-		WriteErrorMessage("GenomeIndex::loadFromDirectory: Failed to load the genome itself\n");
-		delete[] filenameBuffer;
-		delete index;
-		return NULL;
-	}
+    snprintf(filenameBuffer, filenameBufferSize, "%s%c%s", directoryName, PATH_SEP, GenomeFileName);
+    if (NULL == (index->genome = Genome::loadFromFile(filenameBuffer, chromosomePadding, 0, 0, map))) {
+        WriteErrorMessage("GenomeIndex::loadFromDirectory: Failed to load the genome itself\n");
+        delete[] filenameBuffer;
+        delete index;
+        return NULL;
+    }
 
     snprintf(filenameBuffer,filenameBufferSize, "%s%c%s", directoryName, PATH_SEP, OverflowTableFileName);
 
-	if (map) {
-		if (prefetch) {
-			GenericFile *overflowTableFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
-			if (NULL == overflowTableFile) {
-				WriteErrorMessage("Unable to open file '%s'\n", filenameBuffer);
+    if (map) {
+        if (prefetch) {
+            GenericFile *overflowTableFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
+            if (NULL == overflowTableFile) {
+                WriteErrorMessage("Unable to open file '%s'\n", filenameBuffer);
                 soft_exit(1);
-			}
+            }
 
-			overflowTableFile->prefetch();
-			overflowTableFile->close();
-			delete overflowTableFile;
-		}
+            overflowTableFile->prefetch();
+            overflowTableFile->close();
+            delete overflowTableFile;
+        }
 
-		index->mappedOverflowTable = GenericFile_map::open(filenameBuffer);
-		if (NULL == index->mappedOverflowTable) {
-			WriteErrorMessage("Unable to open file '%s'\n", filenameBuffer);
+        index->mappedOverflowTable = GenericFile_map::open(filenameBuffer);
+        if (NULL == index->mappedOverflowTable) {
+            WriteErrorMessage("Unable to open file '%s'\n", filenameBuffer);
             soft_exit(1);
-		}
+        }
 
-		size_t bytesMapped;
-		if (locationSize > 4) {
-			index->overflowTable64 = (_int64 *)index->mappedOverflowTable->mapAndAdvance(overflowTableSizeInBytes, &bytesMapped);
-		} else {
-			index->overflowTable32 = (unsigned *)index->mappedOverflowTable->mapAndAdvance(overflowTableSizeInBytes, &bytesMapped);
-		}
+        size_t bytesMapped;
+        if (locationSize > 4) {
+            index->overflowTable64 = (_int64 *)index->mappedOverflowTable->mapAndAdvance(overflowTableSizeInBytes, &bytesMapped);
+        } else {
+            index->overflowTable32 = (unsigned *)index->mappedOverflowTable->mapAndAdvance(overflowTableSizeInBytes, &bytesMapped);
+        }
 
-		if (bytesMapped != overflowTableSizeInBytes) {
-			WriteErrorMessage("read (via mapping) only %lld bytes of '%s', expected %lld\n", bytesMapped, filenameBuffer, overflowTableSizeInBytes);
+        if (bytesMapped != overflowTableSizeInBytes) {
+            WriteErrorMessage("read (via mapping) only %lld bytes of '%s', expected %lld\n", bytesMapped, filenameBuffer, overflowTableSizeInBytes);
             soft_exit(1);
-		}
+        }
 
-		index->mappedOverflowTable->prefetch();	// NB: This is different than the -pre prefetch.  This one maps the whole thing (and reads it sequentially in case you didn't use -pre)
-	} else {
-		char *tableAsCharStar;
-		if (locationSize > 4) {
-			index->overflowTable64 = (_int64 *)BigAlloc(overflowTableSizeInBytes);
-			tableAsCharStar = (char *)index->overflowTable64;
-			_ASSERT(NULL == index->overflowTable32);
-		} else {
-			index->overflowTable32 = (unsigned *)BigAlloc(overflowTableSizeInBytes);
-			tableAsCharStar = (char *)index->overflowTable32;
-			_ASSERT(NULL == index->overflowTable64);
-		}
+        index->mappedOverflowTable->prefetch();    // NB: This is different than the -pre prefetch.  This one maps the whole thing (and reads it sequentially in case you didn't use -pre)
+    } else {
+        char *tableAsCharStar;
+        if (locationSize > 4) {
+            index->overflowTable64 = (_int64 *)BigAlloc(overflowTableSizeInBytes);
+            tableAsCharStar = (char *)index->overflowTable64;
+            _ASSERT(NULL == index->overflowTable32);
+        } else {
+            index->overflowTable32 = (unsigned *)BigAlloc(overflowTableSizeInBytes);
+            tableAsCharStar = (char *)index->overflowTable32;
+            _ASSERT(NULL == index->overflowTable64);
+        }
 
-		GenericFile *fOverflowTable = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
+        GenericFile *fOverflowTable = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
 
-		if (NULL == fOverflowTable) {
-			WriteErrorMessage("Unable to open overflow table file, '%s', %d\n", filenameBuffer, errno);
+        if (NULL == fOverflowTable) {
+            WriteErrorMessage("Unable to open overflow table file, '%s', %d\n", filenameBuffer, errno);
             delete[] filenameBuffer;
             delete index;
-			return NULL;
-		}
+            return NULL;
+        }
 
-		size_t amountRead = fOverflowTable->read(tableAsCharStar, overflowTableSizeInBytes);
-		if (amountRead != overflowTableSizeInBytes) {
-			WriteErrorMessage("Error reading overflow table, %lld != %lld bytes read.\n", amountRead, overflowTableSizeInBytes);
-			soft_exit(1);
-		}
+        size_t amountRead = fOverflowTable->read(tableAsCharStar, overflowTableSizeInBytes);
+        if (amountRead != overflowTableSizeInBytes) {
+            WriteErrorMessage("Error reading overflow table, %lld != %lld bytes read.\n", amountRead, overflowTableSizeInBytes);
+            soft_exit(1);
+        }
 
-		fOverflowTable->close();
-		delete fOverflowTable;
-		fOverflowTable = NULL;
-	}
+        fOverflowTable->close();
+        delete fOverflowTable;
+        fOverflowTable = NULL;
+    }
 
     index->hashTables = new SNAPHashTable*[index->nHashTables];
 
@@ -2001,51 +2001,51 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
 
     snprintf(filenameBuffer, filenameBufferSize, "%s%c%s", directoryName, PATH_SEP, GenomeIndexHashFileName);
 
-	GenericFile_Blob *blobFile = NULL;
-	GenericFile *tablesFile = NULL;
+    GenericFile_Blob *blobFile = NULL;
+    GenericFile *tablesFile = NULL;
 
-	if (map) {
-		if (prefetch) {
-			GenericFile *hashTableFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
-			if (NULL == hashTableFile) {
-				WriteErrorMessage("Unable to open genome hash table file '%s'\n", filenameBuffer);
-				soft_exit(1);
-			}
+    if (map) {
+        if (prefetch) {
+            GenericFile *hashTableFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
+            if (NULL == hashTableFile) {
+                WriteErrorMessage("Unable to open genome hash table file '%s'\n", filenameBuffer);
+                soft_exit(1);
+            }
 
-			hashTableFile->prefetch();
-			hashTableFile->close();
-			delete hashTableFile;
-		}
+            hashTableFile->prefetch();
+            hashTableFile->close();
+            delete hashTableFile;
+        }
 
-		if (QueryFileSize(filenameBuffer) != hashTablesFileSize) {
-			WriteErrorMessage("File '%s' had unexpected size, %lld != %lld\n", filenameBuffer, QueryFileSize(filenameBuffer), hashTablesFileSize);
+        if (QueryFileSize(filenameBuffer) != hashTablesFileSize) {
+            WriteErrorMessage("File '%s' had unexpected size, %lld != %lld\n", filenameBuffer, QueryFileSize(filenameBuffer), hashTablesFileSize);
             delete[]filenameBuffer;
-			delete index;
-			return NULL;
-		}
+            delete index;
+            return NULL;
+        }
 
-		index->mappedTables = GenericFile_map::open(filenameBuffer);
-		index->mappedTables->prefetch();
-		blobFile = index->mappedTables;
-		index->tablesBlob = NULL;
-	} else {
-		tablesFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
-		if (NULL == tablesFile) {
-			WriteErrorMessage("Unable to open genome hash table file '%s'\n", filenameBuffer);
-			soft_exit(1);
-		}
+        index->mappedTables = GenericFile_map::open(filenameBuffer);
+        index->mappedTables->prefetch();
+        blobFile = index->mappedTables;
+        index->tablesBlob = NULL;
+    } else {
+        tablesFile = GenericFile::open(filenameBuffer, GenericFile::ReadOnly);
+        if (NULL == tablesFile) {
+            WriteErrorMessage("Unable to open genome hash table file '%s'\n", filenameBuffer);
+            soft_exit(1);
+        }
 
-		index->tablesBlob = BigAlloc(hashTablesFileSize);
-		size_t amountRead = tablesFile->read(index->tablesBlob, hashTablesFileSize);
-		if (amountRead != hashTablesFileSize) {
-			WriteErrorMessage("Read incorrect amount for GenomeIndexHash file, %lld != %lld\n", hashTablesFileSize, amountRead);
+        index->tablesBlob = BigAlloc(hashTablesFileSize);
+        size_t amountRead = tablesFile->read(index->tablesBlob, hashTablesFileSize);
+        if (amountRead != hashTablesFileSize) {
+            WriteErrorMessage("Read incorrect amount for GenomeIndexHash file, %lld != %lld\n", hashTablesFileSize, amountRead);
             delete[] filenameBuffer;
-			delete index;
-			return NULL;
-		}
+            delete index;
+            return NULL;
+        }
 
-		blobFile = GenericFile_Blob::open(index->tablesBlob, hashTablesFileSize);
-	}
+        blobFile = GenericFile_Blob::open(index->tablesBlob, hashTablesFileSize);
+    }
 
     for (unsigned i = 0; i < index->nHashTables; i++) {
         if (NULL == (index->hashTables[i] = SNAPHashTable::loadFromBlob(blobFile))) {
@@ -2055,12 +2055,12 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
             return NULL;
         }
 
-		unsigned expectedValueCount;
-		if (smallHashTable) {
-			expectedValueCount = 1;
-		} else {
-			expectedValueCount = 2;
-		}
+        unsigned expectedValueCount;
+        if (smallHashTable) {
+            expectedValueCount = 1;
+        } else {
+            expectedValueCount = 2;
+        }
 
         if (index->hashTables[i]->GetValueCount() != expectedValueCount) {
             WriteErrorMessage("Expected loaded hash table to have value count of %d, but it had %d.  Index corrupt\n", expectedValueCount, index->hashTables[i]->GetValueCount());
@@ -2070,21 +2070,21 @@ GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
         }
     }
 
-	if (!map) {
-		tablesFile->close();
-		delete tablesFile;
-		tablesFile = NULL;
+    if (!map) {
+        tablesFile->close();
+        delete tablesFile;
+        tablesFile = NULL;
 
-		blobFile->close();
-		delete blobFile;
-		blobFile = NULL;
-	}
+        blobFile->close();
+        delete blobFile;
+        blobFile = NULL;
+    }
 
 
 
     if ((_int64)index->genome->getCountOfBases() + (_int64)index->overflowTableSize > 0xfffffff0 && locationSize == 4) {
         WriteErrorMessage("\nThis index has too many overflow entries to be valid.  It was probably built with\n"
-		                    "an anctient version of SNAP.  Please rebuild it.\n");
+                            "an anctient version of SNAP.  Please rebuild it.\n");
         soft_exit(1);
     }
 
@@ -2135,24 +2135,24 @@ GenomeIndex::lookupSeed32(
           fillInLookedUpResults32((lookedUpComplement ? entry : entry + 1), nRCHits, rcHits);
         }
     } else {
-	    for (int dir = 0; dir < NUM_DIRECTIONS; dir++) {
-		    _ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
-		    _uint64 lowBases = seed.getLowBases(hashTableKeySize);
-		    _ASSERT(hashTables[seed.getHighBases(hashTableKeySize)]->GetValueSizeInBytes() == 4);
-		    unsigned *entry = (unsigned int *)hashTables[seed.getHighBases(hashTableKeySize)]->GetFirstValueForKey(lowBases);   // Cast OK because valueSize == 4
-		    if (NULL == entry) {
-			    if (FORWARD == dir) {
-				    *nHits = 0;
-			    } else {
-				    *nRCHits = 0;
-			    }
-		    } else if (FORWARD == dir) {
-			    fillInLookedUpResults32(entry,  nHits, hits);
-		    } else {
-			    fillInLookedUpResults32(entry,  nRCHits, rcHits);
-		    }
-		    seed = ~seed;
-        }	// For each direction    
+        for (int dir = 0; dir < NUM_DIRECTIONS; dir++) {
+            _ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
+            _uint64 lowBases = seed.getLowBases(hashTableKeySize);
+            _ASSERT(hashTables[seed.getHighBases(hashTableKeySize)]->GetValueSizeInBytes() == 4);
+            unsigned *entry = (unsigned int *)hashTables[seed.getHighBases(hashTableKeySize)]->GetFirstValueForKey(lowBases);   // Cast OK because valueSize == 4
+            if (NULL == entry) {
+                if (FORWARD == dir) {
+                    *nHits = 0;
+                } else {
+                    *nRCHits = 0;
+                }
+            } else if (FORWARD == dir) {
+                fillInLookedUpResults32(entry,  nHits, hits);
+            } else {
+                fillInLookedUpResults32(entry,  nRCHits, rcHits);
+            }
+            seed = ~seed;
+        }    // For each direction    
     }
 }
 
@@ -2255,30 +2255,30 @@ GenomeIndex::lookupSeed(
           fillInLookedUpResults(entryByValue[lookedUpComplement ? 0 : 1], nRCHits, rcHits, singleRCHit);
         }
     } else {
-	    for (int dir = 0; dir < NUM_DIRECTIONS; dir++) {
-		    _ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
-		    _uint64 lowBases = seed.getLowBases(hashTableKeySize);
-		    _ASSERT(hashTables[seed.getHighBases(hashTableKeySize)]->GetValueSizeInBytes() > 4);
-		    const char *entry = (char *)hashTables[seed.getHighBases(hashTableKeySize)]->GetFirstValueForKey(lowBases);   
+        for (int dir = 0; dir < NUM_DIRECTIONS; dir++) {
+            _ASSERT(seed.getHighBases(hashTableKeySize) < nHashTables);
+            _uint64 lowBases = seed.getLowBases(hashTableKeySize);
+            _ASSERT(hashTables[seed.getHighBases(hashTableKeySize)]->GetValueSizeInBytes() > 4);
+            const char *entry = (char *)hashTables[seed.getHighBases(hashTableKeySize)]->GetFirstValueForKey(lowBases);   
 
             if (NULL == entry) {
-			    if (FORWARD == dir) {
-				    *nHits = 0;
-			    } else {
-				    *nRCHits = 0;
-			    }
-		    } else {
+                if (FORWARD == dir) {
+                    *nHits = 0;
+                } else {
+                    *nRCHits = 0;
+                }
+            } else {
                 GenomeLocation entryByValue = 0;
                 memcpy(&entryByValue, entry, locationSize);  // Assumes little endian
 
                 if (FORWARD == dir) {
-			        fillInLookedUpResults(entryByValue,  nHits, hits, singleHit);
-		        } else {
-			        fillInLookedUpResults(entryByValue,  nRCHits, rcHits, singleRCHit);
+                    fillInLookedUpResults(entryByValue,  nHits, hits, singleHit);
+                } else {
+                    fillInLookedUpResults(entryByValue,  nRCHits, rcHits, singleRCHit);
                 }
-		    }
-		    seed = ~seed;
-        }	// For each direction    
+            }
+            seed = ~seed;
+        }    // For each direction    
     }
 }
 
@@ -2286,7 +2286,7 @@ GenomeIndex::lookupSeed(
     void 
 GenomeIndex::fillInLookedUpResults(GenomeLocation lookedUpLocation, _int64 *nHits, const GenomeLocation **hits, GenomeLocation *singleHitLocation)
 {
-     //
+    //
     // WARNING: the code in the IntersectingPairedEndAligner relies on being able to look at 
     // hits[-1].  It doesn't care about the value, but it must not be a bogus pointer.  This
     // is true with the current layout (where it will either be the hit count, the key or

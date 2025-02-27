@@ -19,7 +19,7 @@ Environment:
 Revision History:
 
     Adapted from cSNAP, which was in turn adapted from the scala prototype
-
+    Add stats for GPTK based on T2T reference + Internal control sequences
 --*/
 
 #include "stdafx.h"
@@ -249,7 +249,10 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         }
 #endif
         SingleAlignmentResult firstALTResult;
-        while (!aligner->AlignRead(read, alignmentResults, &firstALTResult, maxSecondaryAlignmentAdditionalEditDistance, alignmentResultBufferCount - 1, &nSecondaryResults, maxSecondaryAlignments, alignmentResults + 1, 0, NULL, NULL)) {
+        while (!aligner->AlignRead(read, alignmentResults, &firstALTResult,
+                    maxSecondaryAlignmentAdditionalEditDistance,
+                    alignmentResultBufferCount - 1, &nSecondaryResults,
+                    maxSecondaryAlignments, alignmentResults + 1, 0, NULL, NULL)) {
             //
             // Out of secondary alignment buffer.  Reallocate.
             //
@@ -316,30 +319,40 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                 }
             } // For each result
 
-            stats->extraAlignments += nSecondaryResults + (containsPrimary ? 0 : 1);    // If it doesn't contain the primary, then it's a secondary.
-            readWriter->writeReads(readerContext, read, alignmentResults, nSecondaryResults + 1, containsPrimary, useAffineGap);
+            // If it doesn't contain the primary, then it's a secondary.
+            stats->extraAlignments += nSecondaryResults + (containsPrimary ? 0 : 1);
+            readWriter->writeReads(readerContext, read, alignmentResults,
+                    nSecondaryResults + 1, containsPrimary, useAffineGap);
 
-            if (altAwareness && firstALTResult.status != NotFound && options->passFilter(read, firstALTResult.status, false, false)) {
-                readWriter->writeReads(readerContext, read, &firstALTResult, 1, false, useAffineGap);
-            }
+            if (altAwareness && firstALTResult.status != NotFound &&
+                    options->passFilter(read, firstALTResult.status, false, false))
+                readWriter->writeReads(readerContext, read, &firstALTResult, 1,
+                                       false, useAffineGap);
         } // If we're writing reads at all
 
         if (options->profile) {
             startTime = timeInMillis();
             stats->millisWriting = (startTime - alignFinishedTime);
         }
+        // perform T2T-ref-specific analysis
         if (isT2T)
         {
             // count reads falling into rRNA regions
             if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
-                    (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                    (alignmentResults[0].basesClippedBefore +
+                     alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
                 stats->rrnaReads++;
             // count reads falling into HSK regions
             if (hskpos.find(alignmentResults[0].location) != hskpos.end() &&
-                    (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                    (alignmentResults[0].basesClippedBefore +
+                     alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
             {
-                for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
-                         i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter; ++i)
+                for (int i = alignmentResults[0].location +
+                             alignmentResults[0].basesClippedBefore;
+                         i < alignmentResults[0].location + read->getDataLength() -
+                             alignmentResults[0].basesClippedAfter;
+                         ++i
+                    )
                 {
                     if (hskpos.find(i) != hskpos.end())
                     {
@@ -349,10 +362,12 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                 }
                 stats->hskReads++;
             }
-            if (hasIC) {
+            if (hasIC)
+            {
                 auto it = icpos.find(alignmentResults[0].location);
                 if (it != icpos.end() &&
-                        (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                        (alignmentResults[0].basesClippedBefore +
+                         alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
                 {
                     auto ir = stats->icReads.find(it->second);
                     if (ir == stats->icReads.end())
@@ -362,25 +377,25 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                 }
             }
         }
-        if (containsPrimary) {
-            updateStats(stats, read, alignmentResults[0].status, alignmentResults[0].score, alignmentResults[0].mapq);
-        } else {
+        if (containsPrimary)
+            updateStats(stats, read, alignmentResults[0].status,
+                                     alignmentResults[0].score,
+                                     alignmentResults[0].mapq);
+        else
             stats->filtered++;
-        }
     } // while we have a read to align
 
     stats->lvCalls = aligner->getLocationsScoredWithLandauVishkin();
     stats->affineGapCalls = aligner->getLocationsScoredWithAffineGap();
 
-    aligner->~BaseAligner(); // This calls the destructor without calling operator delete, allocator owns the memory.
- 
-    if (supplier != NULL) {
-        delete supplier;
-    }
+    // This calls the destructor without calling operator delete, allocator owns the memory.
+    aligner->~BaseAligner();
 
-    if (alignmentResultsReallocated) {
+    if (supplier != NULL)
+        delete supplier;
+
+    if (alignmentResultsReallocated)
         BigDealloc(alignmentResults);
-    }
 
     delete allocator;   // This is what actually frees the memory.
 }

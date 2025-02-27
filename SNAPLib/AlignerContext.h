@@ -127,6 +127,7 @@ public:
     const char                         **argv;
     const char                          *version;
     FILE                                *perfFile;
+    FILE                                *statFile;
     DisabledOptimizations                disabledOptimizations;
     bool                                 useAffineGap;
     bool                                 ignoreAlignmentAdjustmentForOm;

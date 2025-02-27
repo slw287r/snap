@@ -71,7 +71,7 @@ _int64 T2T_RRNA_RANGE[37][2] = {
     { 2861832483, 2861832634 }
 };
 
-#define T2T_HSK_SIZE 5350
+#define T2T_HSK_SIZE 5359
 // CDS >100bp
 #define T2T_HSK_NROW 9
 _int64 T2T_HSK_RANGE[9][2] = {
