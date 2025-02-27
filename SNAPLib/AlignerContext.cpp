@@ -557,13 +557,16 @@ char *pctAndPad(char * buffer, double pct, size_t desiredWidth, size_t bufferLen
     void
 AlignerContext::printStats()
 {
-    WriteStatusMessage("Total Reads    rRNA Reads           Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
-        (stats->filtered > 0) ? "Filtered               " : "",
-        (stats->extraAlignments) ? "Extra Alignments  " : "",
-        isPaired() ? "%Pairs    " : "   ",
-        options->profile ? (!options->sortOutput ? " Read Align Write(& compress)" : " Read Align Write") : "",
-        (isPaired() && options->profileAffineGap) ? " %AgSingle %AgUsedSingle AG/Edit" : ""
-        );
+    if (NULL == statFile)
+    {
+        WriteStatusMessage("Total Reads    rRNA Reads           Aligned, MAPQ >= %2d    Aligned, MAPQ < %2d     Unaligned              Too Short/Too Many Ns  %s%s%sReads/s   Time in Aligner (s)%s%s\n", MAPQ_LIMIT_FOR_SINGLE_HIT, MAPQ_LIMIT_FOR_SINGLE_HIT,
+            (stats->filtered > 0) ? "Filtered               " : "",
+            (stats->extraAlignments) ? "Extra Alignments  " : "",
+            isPaired() ? "%Pairs    " : "   ",
+            options->profile ? (!options->sortOutput ? " Read Align Write(& compress)" : " Read Align Write") : "",
+            (isPaired() && options->profileAffineGap) ? " %AgSingle %AgUsedSingle AG/Edit" : ""
+            );
+    }
 
     const size_t strBufLen = 50; // Way more than enough for 64 bit numbers with commas
     char tooShort[strBufLen];
@@ -600,30 +603,33 @@ AlignerContext::printStats()
                         |  |  |  |  |  |  | | |      |  | | | | | AgUsed
                         v  v  v  v  v  v  v v v      v  v v v v v v v AG/Edit
     */
-    WriteStatusMessage("%s %s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
-        FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
-        numPctAndPad(rrna, stats->rrnaReads, 100.0 * stats->rrnaReads / stats->totalReads, 20, strBufLen),
-        numPctAndPad(single, stats->singleHits, 100.0 * stats->singleHits / stats->totalReads, 22, strBufLen),
-        numPctAndPad(multi, stats->multiHits, 100.0 * stats->multiHits / stats->totalReads, 22, strBufLen),
-        numPctAndPad(unaligned, stats->notFound, 100.0 * stats->notFound / stats->totalReads, 22, strBufLen),
-        numPctAndPad(tooShort, stats->uselessReads , 100.0 * stats->uselessReads / max(stats->totalReads, (_int64)1), 22, strBufLen),
-        (stats->filtered > 0) ? numPctAndPad(filtered, stats->filtered, 100.0 * stats->filtered / stats->totalReads, 23, strBufLen) : "",
-        (stats->extraAlignments > 0) ? FormatUIntWithCommas(stats->extraAlignments, extraAlignments, strBufLen, 18) : "",
-        isPaired() ? pctAndPad(pctPairs,  100.0 * stats->alignedAsPairs / stats->totalReads, 7, strBufLen, true) : "",
-        FormatUIntWithCommas((_uint64)(1000 * stats->totalReads / max(alignTime, (_int64)1)), readsPerSecond, strBufLen), // Aligntime is in ms
-        FormatUIntWithCommas((alignTime + 500) / 1000, alignTimeString, strBufLen, 20),
-        options->profile ? pctAndPad(pctRead, (double)stats->millisReading / (double)totalTime, 5, strBufLen, false) : "",
-        options->profile ? pctAndPad(pctAlign, (double)stats->millisAligning / (double)totalTime, 6, strBufLen, false) : "",
-        options->profile ? pctAndPad(pctWrite, (double)stats->millisWriting / (double)totalTime, 6, strBufLen, false) : "",
-        (isPaired() && options->profileAffineGap) ? pctAndPad(pctAg, (double)stats->agForcedSingleEndAlignment / (double)stats->totalReads, 10, strBufLen, true) : "",
-        (isPaired() && options->profileAffineGap) ? pctAndPad(pctAg2, (double)stats->agUsedSingleEndAlignment / (double)stats->totalReads, 14, strBufLen, true) : "",
-        options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
-    );
-    // hsk rds, cov, dep
-    WriteStatusMessage("HSK_READS_COV_AVGDEP\t%" PRId64 "\t%.2f\t%.2f\n",
-                          stats->hskReads,
-                          100.0 * stats->hskCov.size() / T2T_HSK_SIZE,
-                          1.0 * stats->hskBases / T2T_HSK_SIZE);
+    if (NULL == statFile)
+    {
+        WriteStatusMessage("%s %s %s %s %s %s %s%s%s   %-9s %s%s%s%s%s%s%s\n",
+            FormatUIntWithCommas(stats->totalReads, numReads, strBufLen, 14),
+            numPctAndPad(rrna, stats->rrnaReads, 100.0 * stats->rrnaReads / stats->totalReads, 20, strBufLen),
+            numPctAndPad(single, stats->singleHits, 100.0 * stats->singleHits / stats->totalReads, 22, strBufLen),
+            numPctAndPad(multi, stats->multiHits, 100.0 * stats->multiHits / stats->totalReads, 22, strBufLen),
+            numPctAndPad(unaligned, stats->notFound, 100.0 * stats->notFound / stats->totalReads, 22, strBufLen),
+            numPctAndPad(tooShort, stats->uselessReads , 100.0 * stats->uselessReads / max(stats->totalReads, (_int64)1), 22, strBufLen),
+            (stats->filtered > 0) ? numPctAndPad(filtered, stats->filtered, 100.0 * stats->filtered / stats->totalReads, 23, strBufLen) : "",
+            (stats->extraAlignments > 0) ? FormatUIntWithCommas(stats->extraAlignments, extraAlignments, strBufLen, 18) : "",
+            isPaired() ? pctAndPad(pctPairs,  100.0 * stats->alignedAsPairs / stats->totalReads, 7, strBufLen, true) : "",
+            FormatUIntWithCommas((_uint64)(1000 * stats->totalReads / max(alignTime, (_int64)1)), readsPerSecond, strBufLen), // Aligntime is in ms
+            FormatUIntWithCommas((alignTime + 500) / 1000, alignTimeString, strBufLen, 20),
+            options->profile ? pctAndPad(pctRead, (double)stats->millisReading / (double)totalTime, 5, strBufLen, false) : "",
+            options->profile ? pctAndPad(pctAlign, (double)stats->millisAligning / (double)totalTime, 6, strBufLen, false) : "",
+            options->profile ? pctAndPad(pctWrite, (double)stats->millisWriting / (double)totalTime, 6, strBufLen, false) : "",
+            (isPaired() && options->profileAffineGap) ? pctAndPad(pctAg, (double)stats->agForcedSingleEndAlignment / (double)stats->totalReads, 10, strBufLen, true) : "",
+            (isPaired() && options->profileAffineGap) ? pctAndPad(pctAg2, (double)stats->agUsedSingleEndAlignment / (double)stats->totalReads, 14, strBufLen, true) : "",
+            options->profileAffineGap ? pctAndPad(agRatio, (double)stats->affineGapCalls / (double)stats->lvCalls * 100, 8, strBufLen, true, true) : ""
+        );
+        // hsk rds, cov, dep
+        WriteStatusMessage("HSK_READS_COV_AVGDEP\t%" PRId64 "\t%.2f\t%.2f\n",
+                              stats->hskReads,
+                              100.0 * stats->hskCov.size() / T2T_HSK_SIZE,
+                              1.0 * stats->hskBases / T2T_HSK_SIZE);
+    }
     // sort IC by reads number and index
     std::vector<_int64> ic;
     std::unordered_map<_int8, _int64>::iterator it;
@@ -632,10 +638,13 @@ AlignerContext::printStats()
             ic.insert(ic.end(), (it->second << 32) | (UINT32_MAX - it->first));
     sort(ic.begin(), ic.end(), std::greater<_int64>());
     std::vector<_int64>::iterator x;
-    for (x = ic.begin(); x != ic.end(); ++x)
-        WriteStatusMessage("IC%d:%" PRId64 ";", UINT32_MAX - (_int32)*x, *x>>32);
-    if (ic.size())
-        WriteStatusMessage("\n");
+    if (NULL == statFile)
+    {
+        for (x = ic.begin(); x != ic.end(); ++x)
+            WriteStatusMessage("IC%d:%" PRId64 ";", UINT32_MAX - (_int32)*x, *x>>32);
+        if (ic.size())
+            WriteStatusMessage("\n");
+    }
     if (NULL != perfFile) {
         fprintf(perfFile, "maxHits\tmaxDist\t%% reads not useless\t%% reads single hit\t%% reads multi hit\t%% reads not found\tLV calls\taffine gap calls\t%% aligned as pairs\ttotal reads\treads/s\n");
 
@@ -657,9 +666,29 @@ AlignerContext::printStats()
 
         fprintf(perfFile,"\n");
     }
-    // TODO output stats to json via -ss
+    // output stats to json via -ss
     if (NULL != statFile) {
-        fprintf(statFile, "stats goes here\n");
+        fputc('{', statFile);
+        fputs("\t\"alignment\": {\n", statFile);
+        fprintf(statFile, "\t\t\"total_reads\": %" PRId64 ",\n", stats->totalReads);
+        fprintf(statFile, "\t\t\"rrna_reads\": %" PRId64 ",\n", stats->rrnaReads);
+        fprintf(statFile, "\t\t\"rrna_pct\": %.3f,\n", 100.0 * stats->rrnaReads / stats->totalReads);
+        fprintf(statFile, "\t\t\"aligned_mq10+\": %" PRId64 ",\n", stats->singleHits);
+        fprintf(statFile, "\t\t\"aligned_mq10-\": %" PRId64 ",\n", stats->multiHits);
+        fprintf(statFile, "\t\t\"unaligned\": %" PRId64 ",\n", stats->notFound);
+        fprintf(statFile, "\t\t\"too_short_or_too_much_N\": %" PRId64 ",\n", stats->uselessReads);
+        fprintf(statFile, "\t\t\"filtered\": %" PRId64 "\n", stats->filtered);
+        fputs("\t},", statFile);
+        fputs("\t\"hsk\": {\n", statFile);
+        fprintf(statFile, "\t\t\"reads\": % " PRId64 ",\n", stats->hskReads);
+        fprintf(statFile, "\t\t\"coverage\": %.3f,\n", 100.0 * stats->hskCov.size() / T2T_HSK_SIZE);
+        fprintf(statFile, "\t\t\"depth\": %.3f\n", 1.0 * stats->hskBases / T2T_HSK_SIZE);
+        fputs("\t},\n", statFile);
+        fputs("\t\"ic\": {\n", statFile);
+        for (x = ic.begin(); x != ic.end(); ++x)
+            fprintf(statFile, "\t\t\"%d\":%" PRId64 ",\n", UINT32_MAX - (_int32)*x, *x>>32);
+        fputs("\t}\n", statFile);
+        fputc('}', statFile);
     }
 
 

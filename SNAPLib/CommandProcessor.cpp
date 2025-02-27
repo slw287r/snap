@@ -19,8 +19,9 @@ User mode service.
 Revision History:
 
     Pulled from the main program and expanded to handle daemon mode
-    v2.0.3a: Add stats of host rRNA reads to output for capture-efficiency of tNGS-Max
-
+    2.0.3a: Add stats of host rRNA reads to output for capture-efficiency of CAPt
+    2.0.3b: Add stats of HSK gene as QC of CAPt
+    2.0.3c: Add stats of IC as QC of CAPt
 --*/
 
 #include "stdafx.h"
