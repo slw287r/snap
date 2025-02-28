@@ -362,6 +362,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                 }
                 stats->hskReads++;
             }
+            /*
             if (hasIC)
             {
                 auto it = icpos.find(alignmentResults[0].location);
@@ -376,6 +377,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
                         ir->second++;
                 }
             }
+            */
         }
         if (containsPrimary)
             updateStats(stats, read, alignmentResults[0].status,
