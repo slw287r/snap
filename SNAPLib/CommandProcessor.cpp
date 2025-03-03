@@ -59,8 +59,9 @@ static void usage()
 		"  rRNA reads number for non-T2T references. Do a dummy run to verify\n"
 		"  the chr1 length of your snap db via:\e[0;0m\n"
 		"    %s single /path/to/dbdir -fastq /dev/null\n"
-		"  \e[3;90mHSK reads counts and coverage are reported if the T2T-v2 reference is used.\e[0;0m\n"
-		"  \e[3;90mIntermal control (IC) sequence counts will also be reported if applicable.\e[0;0m\n",
+		"  \e[3;90mHSK reads counts and coverage are reported if the T2T-v2 reference\n"
+		"  is used. CAPm/t internal control sequences are also counted if the\n"
+		"  reference contains them.\e[0;0m\n",
 		__progname, __progname);
 }
 
