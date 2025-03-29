@@ -29,6 +29,7 @@ Revision History:
 #include "Genome.h"
 #include "ApproximateCounter.h"
 #include "GenericFile_map.h"
+#include "vmtch.h"
 
 class GenomeIndex {
 public:
