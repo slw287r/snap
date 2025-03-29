@@ -7,7 +7,8 @@ ifeq ($(ARCH),x86_64)
   CXXFLAGS += -static
 endif
 
-CXXFLAGS += -MMD -ISNAPLib -msse
+#CXXFLAGS += -MMD -ISNAPLib -msse
+CXXFLAGS += -MMD -ISNAPLib -mavx512f
 
 LDFLAGS += -pthread
 
@@ -39,6 +40,7 @@ CXX = g++
 
 LIB_SRC = $(wildcard SNAPLib/*.cpp)
 LIB_OBJ = $(patsubst %.cpp, %.o, $(LIB_SRC))
+LIB_DEP = $(patsubst %.cpp, %.d, $(LIB_SRC))
 
 SNAP_SRC = $(wildcard apps/snap/*.cpp)
 TEST_SRC = $(wildcard tests/*.cpp)
@@ -84,6 +86,6 @@ roc: $(LIB_OBJ) $(ROC_OBJ)
 #	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
 
 clean:
-	rm -f $(ALL_OBJ) $(DEPS) $(EXES) snap SNAP
+	rm -f $(ALL_OBJ) $(DEPS) $(LIB_DEP) $(EXES) snap SNAP
 
 .phony: clean default
