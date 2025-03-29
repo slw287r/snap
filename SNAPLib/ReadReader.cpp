@@ -36,13 +36,13 @@ public:
     virtual void reinit(_int64 startingOffset, _int64 amountOfFileToProcess);
 
     virtual bool getNextRead(Read *readToUpdate);
-    
+    /*
     virtual bool getNextRead(Read *read, AlignmentResult *alignmentResult, unsigned *genomeLocation, bool *isRC, unsigned *mapQ,
                     unsigned *flag, const char **cigar)
     {
         // return getNextRead(read,alignmentResult,genomeLocation,isRC,mapQ,flag,false,cigar);
     }
-    
+    */
     virtual void holdBatch(DataBatch batch)
     { data->holdBatch(batch); }
 
