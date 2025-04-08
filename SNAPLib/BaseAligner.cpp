@@ -1292,6 +1292,20 @@ Return Value:
                     }
 
                     bool foundAlignment = useHamming ? (score1Gapless != ScoreAboveLimit && score2Gapless != ScoreAboveLimit) : (score1 != ScoreAboveLimit && score2 != ScoreAboveLimit);
+                    if (foundAlignment && genomeLocationOffset != 0 && 
+                        NULL == genome->getSubstring(genomeLocation + genomeLocationOffset, genomeDataLength)) {
+                        //
+                        // We had an indel that pushed the alignment to cross a contig boundary.  Just dump it
+                        // (though maybe hard clipping is more approproiate).
+                        //
+                        foundAlignment = false;
+#ifdef  _DEBUG
+                        if (_DumpAlignments) {
+                            printf("\t\t Rejected candidate alignment at %s because an indel caused it to cross a contig boundary\n",
+                                genome->genomeLocationInStringForm(genomeLocation.location, genomeLocationBuffer, genomeLocationBufferSize));
+                        }
+#endif  // _DEBUG
+                    }
 
                     if (foundAlignment) {
                         score = score1 + score2;
@@ -1475,10 +1489,15 @@ Return Value:
                     // care about the best alignment. Stop now but mark the result as MultipleHits because we're not
                     // confident that it's the best one.  We don't support mapq in this secnario, because we haven't
                     // explored enough to compute it.
+
+
+                    (altAwareness ? scoresForNonAltAlignments : scoresForAllAlignments).fillInSingleAlignmentResult(primaryResult, popularSeedsSkipped);
+                    //
+                    // Force MAPQ 0 in this case, since we didn't explore the whole space and can't say.
+                    //
                     primaryResult->status = MultipleHits;
                     primaryResult->mapq = 0;
-                    // fill genome location for rrna reads counting
-                    (altAwareness ? scoresForNonAltAlignments : scoresForAllAlignments).fillInSingleAlignmentLocation(primaryResult, popularSeedsSkipped);
+                    firstALTResult->status = NotFound;
                     return true;
                 }
                 // Taken from intersecting paired-end aligner.
