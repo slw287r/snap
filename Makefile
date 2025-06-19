@@ -67,6 +67,7 @@ $(OBJS): %.o : %.cpp
 
 snap-aligner: $(LIB_OBJ) $(SNAP_OBJ)
 	$(CXX) -o $@ $(CXXFLAGS) -Itests $(LDFLAGS) $^ $(LIBS)
+	strip $@
 
 #SNAPCommand: $(LIB_OBJ) $(SNAPCOMMAND_OBJ)
 #	echo SNAPCOMMAND_OBJ is $(SNAPCOMMAND_OBJ)
