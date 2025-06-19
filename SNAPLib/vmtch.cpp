@@ -25,7 +25,7 @@ static void fatal(const char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    fprintf(stderr, "FATAL: %s\n", buf);
+    fprintf(stderr, "[FATAL]: %s\n", buf);
     exit(1);
 }
 
@@ -35,7 +35,7 @@ static void warning(const char *fmt, ...) {
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    fprintf(stderr, "WARNING: %s\n", buf);
+    fprintf(stderr, "[WARN] %s\n", buf);
 }
 
 int aligned_p(void *p)
@@ -148,7 +148,7 @@ int compare_func(const void *p1, const void *p2)
 }
 
 // add device and inode information to the tree of known inodes
-static inline void add_object (struct stat *st)
+static inline void add_object(struct stat *st)
 {
     struct dev_and_inode *newp = (struct dev_and_inode *)malloc(sizeof(struct dev_and_inode));
     if (newp == NULL) fatal("malloc: out of memory");
@@ -174,30 +174,27 @@ int64_t bytes2pages(int64_t bytes) {
     return (bytes+pagesize-1) / pagesize;
 }
 
-bool vmtouch_all_in_core(char *path)
+bool vmcheck(char *fpath)
 {
 
     int fd = -1;
     void *mem = NULL;
     struct stat sb;
-    int64_t len_of_file = 0, len_of_range = 0;
-    int64_t pages_in_range, total_pages = 0, total_pages_in_core = 0;
+    int64_t len_of_file = 0, len_of_range = 0, pages_in_range;
     size_t o_max_file_size = SIZE_MAX;
     unsigned char *mincore_array = NULL;
-
-    bool ret = false;
-    int i, res, open_flags;
+    int i, open_flags;
 
 retry_open:
     open_flags = O_RDONLY;
 #if defined(O_NOATIME)
     open_flags |= O_NOATIME;
 #endif
-    fd = open(path, open_flags, 0);
+    fd = open(fpath, open_flags, 0);
 #if defined(O_NOATIME)
     if (fd == -1 && errno == EPERM) {
         open_flags &= ~O_NOATIME;
-        fd = open(path, open_flags, 0);
+        fd = open(fpath, open_flags, 0);
     }
 #endif
     if (fd == -1) {
@@ -205,18 +202,17 @@ retry_open:
             increment_nofile_rlimit();
             goto retry_open;
         }
-        warning("unable to open %s (%s), skipping", path, strerror(errno));
+        warning("unable to open %s (%s), skipping", fpath, strerror(errno));
         goto bail;
     }
-    res = fstat(fd, &sb);
-    if (res) {
-        warning("unable to fstat %s (%s), skipping", path, strerror(errno));
+    if (fstat(fd, &sb)) {
+        warning("unable to fstat %s (%s), skipping", fpath, strerror(errno));
         goto bail;
     }
     if (S_ISBLK(sb.st_mode)) {
 #if defined(__linux__)
         if (ioctl(fd, BLKGETSIZE64, &len_of_file)) {
-            warning("unable to ioctl %s (%s), skipping", path, strerror(errno));
+            warning("unable to ioctl %s (%s), skipping", fpath, strerror(errno));
             goto bail;
         }
 #else
@@ -225,23 +221,22 @@ retry_open:
     } else {
         len_of_file = sb.st_size;
     }
-    if (len_of_file == 0) goto bail;
-    if (len_of_file > o_max_file_size) {
-        warning("file %s too large, skipping", path);
+    if (len_of_file == 0 || len_of_file > o_max_file_size) {
+        warning("file %s empty or too large, skipping", fpath);
         goto bail;
     }
     if (offset >= len_of_file) {
-        warning("file %s smaller than offset, skipping", path);
+        warning("file %s smaller than offset, skipping", fpath);
         goto bail;
     } else {
         len_of_range = len_of_file - offset;
     }
     mem = mmap(NULL, len_of_range, PROT_READ, MAP_SHARED, fd, offset);
     if (mem == MAP_FAILED) {
-        warning("unable to mmap file %s (%s), skipping", path, strerror(errno));
+        warning("unable to mmap file %s (%s), skipping", fpath, strerror(errno));
         goto bail;
     }
-    if (!aligned_p(mem)) fatal("mmap(%s) wasn't page aligned", path);
+    if (!aligned_p(mem)) fatal("mmap(%s) wasn't page aligned", fpath);
     pages_in_range = bytes2pages(len_of_range);
     total_pages += pages_in_range;
     mincore_array = (unsigned char *)malloc(pages_in_range);
@@ -249,21 +244,18 @@ retry_open:
         fatal("Failed to allocate memory for mincore array (%s)", strerror(errno));
     // 3rd arg to mincore is char* on BSD and unsigned char* on linux
     if (mincore(mem, len_of_range, mincore_array))
-        fatal("mincore %s (%s)", path, strerror(errno));
+        fatal("mincore %s (%s)", fpath, strerror(errno));
     for (i = 0; i < pages_in_range; i++)
         if (is_mincore_page_resident(mincore_array[i]))
             total_pages_in_core++;
     free(mincore_array);
-    ret = total_pages_in_core == total_pages;
-
 bail:
     if (mem && munmap(mem, len_of_range))
-        warning("unable to munmap file %s (%s)", path, strerror(errno));
+        warning("unable to munmap file %s (%s)", fpath, strerror(errno));
     if (fd != -1) close(fd);
-    return ret;
 }
 
-void vmtouch(char *path)
+void vmtouch(char *path, bool check)
 {
     struct stat sb;
     DIR *dirp;
@@ -272,7 +264,7 @@ void vmtouch(char *path)
     int i, res;
     int tp_path_len = strlen(path);
     if (path[tp_path_len-1] == '/' && tp_path_len > 1)
-        path[tp_path_len - 1] = '\0'; // prevent ugly double slashes when printing path names
+        path[tp_path_len - 1] = '\0';
     res = lstat(path, &sb);
 
     if (res)
@@ -336,7 +328,7 @@ void vmtouch(char *path)
                     goto bail;
                 }
                 curr_crawl_depth++;
-                vmtouch(npath);
+                vmtouch(npath, check);
                 curr_crawl_depth--;
             }
 bail:
@@ -352,7 +344,10 @@ bail:
             return;
         }
         else if (S_ISREG(sb.st_mode) || S_ISBLK(sb.st_mode))
-            vmtouch_core(path);
+		{
+			if (check) vmcheck(path);
+			else vmtouch_core(path);
+		}
         else
             warning("skipping non-regular file: %s", path);
     }

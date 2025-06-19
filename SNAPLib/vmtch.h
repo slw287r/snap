@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <limits.h>
 #include <inttypes.h>
 #include <dirent.h>
@@ -27,8 +28,10 @@
 extern "C" {
 #endif
 
-bool vmtouch_all_in_core(char *path);
-void vmtouch(char *path);
+int64_t total_pages = 0;
+int64_t total_pages_in_core = 0;
+void vmcheck(char *fpath);
+void vmtouch(char *path, bool check);
 
 #ifdef __cplusplus
 }

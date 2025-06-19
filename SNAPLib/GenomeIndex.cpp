@@ -1838,8 +1838,9 @@ GenomeIndex::getMinorVersion()
         GenomeIndex *
 GenomeIndex::loadFromDirectory(char *directoryName, bool map, bool prefetch)
 {
-    if (!vmtouch_all_in_core(directoryName))
-        vmtouch(directoryName);
+    vmtouch(directoryName, true);
+    if (total_pages != total_pages_in_core)
+        vmtouch(directoryName, false);
     int filenameBufferSize = (int)(strlen(directoryName) + 1 + __max(strlen(GenomeIndexFileName), __max(strlen(OverflowTableFileName), __max(strlen(GenomeIndexHashFileName), strlen(GenomeFileName)))) + 1);
     char *filenameBuffer = new char[filenameBufferSize];
     
