@@ -174,7 +174,7 @@ int64_t bytes2pages(int64_t bytes) {
     return (bytes+pagesize-1) / pagesize;
 }
 
-bool vmcheck(char *fpath)
+void vmcheck(char *fpath)
 {
 
     int fd = -1;
