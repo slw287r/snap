@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <inttypes.h>
 #include <dirent.h>
 #include <err.h>
 #include <errno.h>
@@ -26,6 +27,7 @@
 extern "C" {
 #endif
 
+bool vmtouch_all_in_core(char *path);
 void vmtouch(char *path);
 
 #ifdef __cplusplus
