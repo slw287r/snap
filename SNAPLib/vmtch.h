@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 
-int64_t total_pages = 0;
-int64_t total_pages_in_core = 0;
 void vmcheck(char *fpath);
 void vmtouch(char *path, bool check);
 

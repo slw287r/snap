@@ -12,6 +12,8 @@ struct dev_and_inode
 int64_t offset = 0;
 int curr_crawl_depth = 0;
 ino_t crawl_inodes[PATH_MAX];
+int64_t total_pages = 0;
+int64_t total_pages_in_core = 0;
 
 // remember all inodes (for files with inode count > 1) to find duplicates
 void *seen_inodes = NULL;

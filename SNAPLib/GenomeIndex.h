@@ -31,6 +31,9 @@ Revision History:
 #include "GenericFile_map.h"
 #include "vmtch.h"
 
+extern int64_t total_pages;
+extern int64_t total_pages_in_core;
+
 class GenomeIndex {
 public:
     const Genome *getGenome() {return genome;}
