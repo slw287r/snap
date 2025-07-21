@@ -337,7 +337,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         // perform T2T-ref-specific analysis
         if (isT2T && (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
         {
-#ifdef DEBUG
+#ifdef _DEBUG_3P
             if (options->printPaddedPostions)
                 fprintf(stderr, "%.*s\t%" PRId64 "\n", read->getIdLength(), read->getId(), alignmentResults[0].location);
 #endif
