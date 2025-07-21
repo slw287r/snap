@@ -131,7 +131,7 @@ struct AlignerOptions : public AbstractOptions
     const char         *defaultReadGroup; // if not specified in input
     bool                ignoreSecondaryAlignments; // on input, default true
     int                 maxSecondaryAlignmentAdditionalEditDistance;
-    int                    maxSecondaryAlignments;
+    int                 maxSecondaryAlignments;
     int                 maxSecondaryAlignmentsPerContig;
     int                 flattenMAPQAtOrBelow;
     bool                preserveClipping;
@@ -162,6 +162,7 @@ struct AlignerOptions : public AbstractOptions
     bool                emitALTAlignments;
     bool                attachAlignmentTimes;
     bool                preserveFASTQComments;
+    bool                printPaddedPostions;
 
     static bool         useHadoopErrorMessages; // This is static because it's global (and I didn't want to push the options object to every place in the code)
     static bool         outputToStdout;         // Likewise

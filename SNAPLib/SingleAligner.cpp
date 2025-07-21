@@ -335,24 +335,22 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             stats->millisWriting = (startTime - alignFinishedTime);
         }
         // perform T2T-ref-specific analysis
-        if (isT2T)
+        if (isT2T && (alignmentResults[0].basesClippedBefore + alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
         {
+#ifdef DEBUG
+            if (options->printPaddedPostions)
+                fprintf(stderr, "%.*s\t%" PRId64 "\n", read->getIdLength(), read->getId(), alignmentResults[0].location);
+#endif
             // count reads falling into rRNA regions
-            if (rrnapos.find(alignmentResults[0].location) != rrnapos.end() &&
-                    (alignmentResults[0].basesClippedBefore +
-                     alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+            if (rrnapos.find(alignmentResults[0].location) != rrnapos.end())
                 stats->rrnaReads++;
             // count reads falling into HSK regions
-            if (hskpos.find(alignmentResults[0].location) != hskpos.end() &&
-                    (alignmentResults[0].basesClippedBefore +
-                     alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+            if (hskpos.find(alignmentResults[0].location) != hskpos.end())
             {
-                for (int i = alignmentResults[0].location +
-                             alignmentResults[0].basesClippedBefore;
-                         i < alignmentResults[0].location + read->getDataLength() -
-                             alignmentResults[0].basesClippedAfter;
+                for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
+                         i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter;
                          ++i
-                    )
+                )
                 {
                     if (hskpos.find(i) != hskpos.end())
                     {
@@ -365,9 +363,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             if (hasIC)
             {
                 auto it = icpos.find(alignmentResults[0].location);
-                if (it != icpos.end() &&
-                        (alignmentResults[0].basesClippedBefore +
-                         alignmentResults[0].basesClippedAfter) <= MAX_ALLOWED_CLIPS)
+                if (it != icpos.end())
                 {
                     auto ir = stats->icReads.find(it->second);
                     if (ir == stats->icReads.end())

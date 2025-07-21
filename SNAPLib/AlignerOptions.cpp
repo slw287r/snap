@@ -102,7 +102,8 @@ AlignerOptions::AlignerOptions(
     useSoftClipping(true),
     flattenMAPQAtOrBelow(3),
     attachAlignmentTimes(false),
-    preserveFASTQComments(false)
+    preserveFASTQComments(false),
+    printPaddedPostions(false)
 {
     if (forPairedEnd) {
         maxDist                 = 27;
@@ -277,6 +278,7 @@ AlignerOptions::usage()
             "       are still printed.\n"            
             " -qq   Super quiet mode: don't print status or error messages.\n"
             " -ss   Statistics json file for snap-aligner single alignment\n"
+            " -ppp  Print padded positions for regions of interest ([DEBUG] only), compile with -DDEBUG to enable\n"
             ,
             extraSearchDepth,
             expansionFactor,
@@ -953,6 +955,9 @@ AlignerOptions::usage()
         } else if (strcmp(argv[n], "--hp") == 0) {
             BigAllocUseHugePages = false;
             return true;
+        } else if (strcmp(argv[n], "--ppp") == 0) {
+			printPaddedPostions = true;
+            return true;
         } else if (strcmp(argv[n], "-hp") == 0) {
             BigAllocUseHugePages = true;
             return true;
@@ -1134,7 +1139,7 @@ SNAPFile::createReadSupplierGenerator(int numThreads, const ReaderContext& conte
         return SAMReader::createReadSupplierGenerator(fileName, numThreads, context);
         
     case BAMFile:
-        return BAMReader::createReadSupplierGenerator(fileName,numThreads, context);
+        return BAMReader::createReadSupplierGenerator(fileName, numThreads, context);
 
     case FASTQFile:
         return FASTQReader::createReadSupplierGenerator(fileName, numThreads, context, isCompressed);
