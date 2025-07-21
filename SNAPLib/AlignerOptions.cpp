@@ -278,7 +278,13 @@ AlignerOptions::usage()
             "       are still printed.\n"            
             " -qq   Super quiet mode: don't print status or error messages.\n"
             " -ss   Statistics json file for snap-aligner single alignment\n"
-            " -ppp  Print padded positions for regions of interest ([DEBUG] only), compile with -DDEBUG to enable\n"
+            " -ppp  Print padded positions for regions of interest ([DEBUG] only), compile with -DDEBUG to enable "
+#ifdef DEBUG
+			"(available)"
+#else
+			"(unavailable)"
+#endif
+			"\n"
             ,
             extraSearchDepth,
             expansionFactor,
