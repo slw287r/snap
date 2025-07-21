@@ -41,4 +41,8 @@ For Linux, simply type `make`. Requirements:
 - g++ version 4.8.5 or later
 - zlib 1.2.11 or later from http://zlib.net/
 
+## Notes for this branch (dev)
 
+This branch is tailored for CAPx's host depletion and others statistics include host rRNA, HSK and synthetic IC. It gathers extra statistics information while depleting the host reads to speed up the pipeline.
+
+Coordinates presets are required in the `SNAPLib/T2TrRNA.h` file. The coordinate info can be obtained by simulating SE reads and map them back to the updated reference genome with `snap-alginer single` with the `--ppp` option, which is only available when compiled with the `-D_DEBUG_3P` flag in `Makefile`. After done with the `SNAPLib/T2TrRNA.h` updates, comment out the `CXX = g++ -D_DEBUG_3P` line and make again to get rid of the `printPaddedPosition` check which may slow the mapping step.
