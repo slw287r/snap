@@ -961,7 +961,7 @@ AlignerOptions::usage()
         } else if (strcmp(argv[n], "--hp") == 0) {
             BigAllocUseHugePages = false;
             return true;
-        } else if (strcmp(argv[n], "--ppp") == 0) {
+        } else if (strcmp(argv[n], "--ppp") == 0 || strcmp(argv[n], "-ppp") == 0) {
 			printPaddedPostions = true;
             return true;
         } else if (strcmp(argv[n], "-hp") == 0) {
