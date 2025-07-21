@@ -347,7 +347,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             // count reads falling into HSK regions
             if (hskpos.find(alignmentResults[0].location) != hskpos.end())
             {
-                for (int i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
+                for (_int64 i = alignmentResults[0].location + alignmentResults[0].basesClippedBefore;
                          i < alignmentResults[0].location + read->getDataLength() - alignmentResults[0].basesClippedAfter;
                          ++i
                 )
