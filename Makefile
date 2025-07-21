@@ -37,6 +37,7 @@ ifneq ($(STATIC),)
 endif
 
 CXX = g++
+CXX = g++ -D_DEBUG_3P
 
 LIB_SRC = $(wildcard SNAPLib/*.cpp)
 LIB_OBJ = $(patsubst %.cpp, %.o, $(LIB_SRC))
