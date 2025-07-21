@@ -339,7 +339,7 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
         {
 #ifdef _DEBUG_3P
             if (options->printPaddedPostions)
-                fprintf(stderr, "%.*s\t%" PRId64 "\n", read->getIdLength(), read->getId(), alignmentResults[0].location);
+                fprintf(stderr, "[DEBUG] %.*s\t%" PRId64 "\n", read->getIdLength(), read->getId(), alignmentResults[0].location);
 #endif
             // count reads falling into rRNA regions
             if (rrnapos.find(alignmentResults[0].location) != rrnapos.end())
