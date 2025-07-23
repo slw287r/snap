@@ -672,7 +672,7 @@ AlignerContext::printStats()
         fputs("\t\"alignment\": {\n", statFile);
         fprintf(statFile, "\t\t\"total_reads\": %" PRId64 ",\n", stats->totalReads);
         fprintf(statFile, "\t\t\"rrna_reads\": %" PRId64 ",\n", stats->rrnaReads);
-        fprintf(statFile, "\t\t\"rrna_pct\": %.3f,\n", 100.0 * stats->rrnaReads / stats->totalReads);
+        fprintf(statFile, "\t\t\"rrna_pct\": %.3f,\n", stats->totalReads ? 100.0 * stats->rrnaReads / stats->totalReads : 0);
         fprintf(statFile, "\t\t\"aligned_mq10+\": %" PRId64 ",\n", stats->singleHits);
         fprintf(statFile, "\t\t\"aligned_mq10-\": %" PRId64 ",\n", stats->multiHits);
         fprintf(statFile, "\t\t\"unaligned\": %" PRId64 ",\n", stats->notFound);
