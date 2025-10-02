@@ -10,10 +10,12 @@ struct dev_and_inode
 };
 
 int64_t offset = 0;
-int curr_crawl_depth = 0;
-ino_t crawl_inodes[PATH_MAX];
 int64_t total_pages = 0;
 int64_t total_pages_in_core = 0;
+long pagesize = sysconf(_SC_PAGESIZE);
+int curr_crawl_depth = 0;
+ino_t crawl_inodes[PATH_MAX];
+unsigned int junk_counter; // just to prevent any compiler optimizations
 
 // remember all inodes (for files with inode count > 1) to find duplicates
 void *seen_inodes = NULL;
@@ -31,13 +33,19 @@ static void fatal(const char *fmt, ...)
     exit(1);
 }
 
-static void warning(const char *fmt, ...) {
+static void warning(const char *fmt, ...)
+{
     va_list ap;
     char buf[4096];
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
-    fprintf(stderr, "[WARN] %s\n", buf);
+    fprintf(stderr, "[WARNING]: %s\n", buf);
+}
+
+int64_t bytes2pages(int64_t bytes)
+{
+    return (bytes+pagesize-1) / pagesize;
 }
 
 int aligned_p(void *p)
@@ -45,7 +53,8 @@ int aligned_p(void *p)
     return 0 == ((long)p & (sysconf(_SC_PAGESIZE) - 1));
 }
 
-int is_mincore_page_resident(char p) {
+int is_mincore_page_resident(char p)
+{
     return p & 0x1;
 }
 
@@ -60,21 +69,24 @@ void increment_nofile_rlimit()
     {
         if (errno == EPERM)
         {
-            if (getuid() == 0 || geteuid() == 0) fatal("system open file limit reached");
+            if (getuid() == 0 || geteuid() == 0)
+                fatal("system open file limit reached");
             fatal("open file limit reached and unable to increase limit. retry as root");
         }
         fatal("increment_nofile_rlimit: setrlimit (%s)", strerror(errno));
     }
 }
 
-static void vmtouch_core(char *path)
+static void vmtouch_core(char *path, bool do_touch)
 {
-    int fd = -1;
+    int i, fd = -1;
     void *mem = 0;
     struct stat sb;
-    int64_t len_of_file=0;
-    int64_t len_of_range=0;
+    int64_t len_of_file = 0;
+    int64_t len_of_range = 0;
+    int64_t pages_in_range;
     int res, open_flags;
+    unsigned char *mincore_array = NULL;
 retry_open:
     open_flags = O_RDONLY;
 #if defined(O_NOATIME)
@@ -118,7 +130,8 @@ retry_open:
     }
     else
         len_of_file = sb.st_size;
-    if (len_of_file == 0) goto bail;
+    if (len_of_file == 0)
+        goto bail;
     if (offset >= len_of_file)
     {
         warning("file %s smaller than offset, skipping", path);
@@ -126,13 +139,26 @@ retry_open:
     }
     else
         len_of_range = len_of_file - offset;
-    mem = mmap(NULL, len_of_range, PROT_READ, MAP_SHARED, fd, offset);
-    if (mem == MAP_FAILED)
+    if ((mem = mmap(NULL, len_of_range, PROT_READ, MAP_SHARED, fd, offset)) == MAP_FAILED)
     {
         warning("unable to mmap file %s (%s), skipping", path, strerror(errno));
         goto bail;
     }
-    if (!aligned_p(mem)) fatal("mmap(%s) wasn't page aligned", path);
+    if (!aligned_p(mem))
+        fatal("mmap(%s) wasn't page aligned", path);
+    total_pages += (pages_in_range = bytes2pages(len_of_range));
+    if (!(mincore_array = (unsigned char *)malloc(pages_in_range)))
+        fatal("Failed to allocate memory for mincore array (%s)", strerror(errno));
+    // 3rd arg to mincore is char* on BSD and unsigned char* on linux
+    if (mincore(mem, len_of_range, (unsigned char *)mincore_array))
+        fatal("mincore %s (%s)", path, strerror(errno));
+    for (i = 0; i < pages_in_range; ++i)
+    {
+        if (is_mincore_page_resident(mincore_array[i]))
+            total_pages_in_core++;
+        if (do_touch)
+            junk_counter += ((char*)mem)[i * pagesize]; // <- actually reads each page
+    }
 bail:
     if (mem && munmap(mem, len_of_range))
         warning("unable to munmap file %s (%s)", path, strerror(errno));
@@ -150,10 +176,11 @@ int compare_func(const void *p1, const void *p2)
 }
 
 // add device and inode information to the tree of known inodes
-static inline void add_object(struct stat *st)
+static inline void add_object (struct stat *st)
 {
     struct dev_and_inode *newp = (struct dev_and_inode *)malloc(sizeof(struct dev_and_inode));
-    if (newp == NULL) fatal("malloc: out of memory");
+    if (newp == NULL)
+        fatal("malloc: out of memory");
     newp->dev = st->st_dev;
     newp->ino = st->st_ino;
     if (tsearch(newp, &seen_inodes, compare_func) == NULL)
@@ -171,115 +198,27 @@ static inline int find_object(struct stat *st)
     return res != (void *) NULL;
 }
 
-int64_t bytes2pages(int64_t bytes) {
-    long pagesize = sysconf(_SC_PAGESIZE);
-    return (bytes+pagesize-1) / pagesize;
-}
-
-void vmcheck(char *fpath)
-{
-
-    int fd = -1;
-    void *mem = NULL;
-    struct stat sb;
-    int64_t len_of_file = 0, len_of_range = 0, pages_in_range;
-    size_t o_max_file_size = SIZE_MAX;
-    unsigned char *mincore_array = NULL;
-    int i, open_flags;
-
-retry_open:
-    open_flags = O_RDONLY;
-#if defined(O_NOATIME)
-    open_flags |= O_NOATIME;
-#endif
-    fd = open(fpath, open_flags, 0);
-#if defined(O_NOATIME)
-    if (fd == -1 && errno == EPERM) {
-        open_flags &= ~O_NOATIME;
-        fd = open(fpath, open_flags, 0);
-    }
-#endif
-    if (fd == -1) {
-        if (errno == ENFILE || errno == EMFILE) {
-            increment_nofile_rlimit();
-            goto retry_open;
-        }
-        warning("unable to open %s (%s), skipping", fpath, strerror(errno));
-        goto bail;
-    }
-    if (fstat(fd, &sb)) {
-        warning("unable to fstat %s (%s), skipping", fpath, strerror(errno));
-        goto bail;
-    }
-    if (S_ISBLK(sb.st_mode)) {
-#if defined(__linux__)
-        if (ioctl(fd, BLKGETSIZE64, &len_of_file)) {
-            warning("unable to ioctl %s (%s), skipping", fpath, strerror(errno));
-            goto bail;
-        }
-#else
-        fatal("discovering size of block devices not (yet?) supported on this platform");
-#endif
-    } else {
-        len_of_file = sb.st_size;
-    }
-    if (len_of_file == 0 || len_of_file > o_max_file_size) {
-        warning("file %s empty or too large, skipping", fpath);
-        goto bail;
-    }
-    if (offset >= len_of_file) {
-        warning("file %s smaller than offset, skipping", fpath);
-        goto bail;
-    } else {
-        len_of_range = len_of_file - offset;
-    }
-    mem = mmap(NULL, len_of_range, PROT_READ, MAP_SHARED, fd, offset);
-    if (mem == MAP_FAILED) {
-        warning("unable to mmap file %s (%s), skipping", fpath, strerror(errno));
-        goto bail;
-    }
-    if (!aligned_p(mem)) fatal("mmap(%s) wasn't page aligned", fpath);
-    pages_in_range = bytes2pages(len_of_range);
-    total_pages += pages_in_range;
-    mincore_array = (unsigned char *)malloc(pages_in_range);
-    if (!mincore_array)
-        fatal("Failed to allocate memory for mincore array (%s)", strerror(errno));
-    // 3rd arg to mincore is char* on BSD and unsigned char* on linux
-    if (mincore(mem, len_of_range, mincore_array))
-        fatal("mincore %s (%s)", fpath, strerror(errno));
-    for (i = 0; i < pages_in_range; i++)
-        if (is_mincore_page_resident(mincore_array[i]))
-            total_pages_in_core++;
-    free(mincore_array);
-bail:
-    if (mem && munmap(mem, len_of_range))
-        warning("unable to munmap file %s (%s)", fpath, strerror(errno));
-    if (fd != -1) close(fd);
-}
-
-void vmtouch(char *path, bool check)
+double vmtouch(char *path, bool do_touch)
 {
     struct stat sb;
     DIR *dirp;
     struct dirent *de;
-    char npath[PATH_MAX];
-    int i, res;
-    int tp_path_len = strlen(path);
-    if (path[tp_path_len-1] == '/' && tp_path_len > 1)
-        path[tp_path_len - 1] = '\0';
+    char npath[PATH_MAX], *p;
+    int i, res, tp_path_len = strlen(path);
+    if (*(p = path + tp_path_len - 1) == '/' && tp_path_len > 1)
+        *p = '\0'; // prevent ugly double slashes when printing path names
     res = lstat(path, &sb);
-
     if (res)
     {
         warning("unable to stat %s (%s)", path, strerror(errno));
-        return;
+        return 0.0f;
     }
     else
     {
         if (S_ISLNK(sb.st_mode))
         {
             warning("not following symbolic link %s", path);
-            return;
+            return 0.0f;
         }
         if (sb.st_nlink > 1)
         {
@@ -291,11 +230,10 @@ void vmtouch(char *path, bool check)
              */
             if (find_object(&sb))
                 // we already saw the device and inode referenced by this file
-                return;
+                return 0.0f;
             else
                 add_object(&sb);
         }
-
         if (S_ISDIR(sb.st_mode))
         {
             for (i=0; i<curr_crawl_depth; i++)
@@ -303,7 +241,7 @@ void vmtouch(char *path, bool check)
                 if (crawl_inodes[i] == sb.st_ino)
                 {
                     warning("symbolic link loop detected: %s", path);
-                    return;
+                    return 0.0f;
                 }
             }
             if (curr_crawl_depth == PATH_MAX)
@@ -319,38 +257,37 @@ void vmtouch(char *path, bool check)
                     goto retry_opendir;
                 }
                 warning("unable to opendir %s (%s), skipping", path, strerror(errno));
-                return;
+                return 0.0f;
             }
             while((de = readdir(dirp)) != NULL)
             {
-                if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) continue;
+                if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
+                    continue;
                 if (snprintf(npath, sizeof(npath), "%s/%s", path, de->d_name) >= sizeof(npath))
                 {
                     warning("path too long %s", path);
                     goto bail;
                 }
                 curr_crawl_depth++;
-                vmtouch(npath, check);
+                vmtouch(npath, do_touch);
                 curr_crawl_depth--;
             }
 bail:
             if (closedir(dirp))
             {
                 warning("unable to closedir %s (%s)", path, strerror(errno));
-                return;
+                return 0.0f;
             }
         }
         else if (S_ISLNK(sb.st_mode))
         {
             warning("not following symbolic link %s", path);
-            return;
+            return 0.0f;
         }
         else if (S_ISREG(sb.st_mode) || S_ISBLK(sb.st_mode))
-		{
-			if (check) vmcheck(path);
-			else vmtouch_core(path);
-		}
+            vmtouch_core(path, do_touch);
         else
             warning("skipping non-regular file: %s", path);
     }
+    return total_pages ? 100.0 * total_pages_in_core / total_pages : 0.0f;
 }

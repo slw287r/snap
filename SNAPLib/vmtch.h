@@ -6,7 +6,6 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <limits.h>
-#include <inttypes.h>
 #include <dirent.h>
 #include <err.h>
 #include <errno.h>
@@ -28,8 +27,7 @@
 extern "C" {
 #endif
 
-void vmcheck(char *fpath);
-void vmtouch(char *path, bool check);
+double vmtouch(char *path, bool touch);
 
 #ifdef __cplusplus
 }
