@@ -434,7 +434,10 @@ AlignerOptions::usage()
                     WriteErrorMessage("Number of threads must be at least one.\n");
                     return false;
                 }
- 
+#ifdef __linux__
+                else if (numThreads > sysconf(_SC_NPROCS_CONF))
+                    numThreads = sysconf(_SC_NPROCS_CONF);
+#endif 
                 return true;
             }
         } else if (strcmp(argv[n], "-o") == 0) {
