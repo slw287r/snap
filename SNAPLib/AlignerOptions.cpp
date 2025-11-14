@@ -435,8 +435,8 @@ AlignerOptions::usage()
                     return false;
                 }
 #ifdef __linux__
-                else if (numThreads > sysconf(_SC_NPROCS_CONF))
-                    numThreads = sysconf(_SC_NPROCS_CONF);
+                else if (numThreads > sysconf(_SC_NPROCESSORS_CONF))
+                    numThreads = sysconf(_SC_NPROCESSORS_CONF);
 #endif 
                 return true;
             }
