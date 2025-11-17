@@ -48,7 +48,9 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#ifdef __linux__
 #include <sys/sysinfo.h>
+#endif
 #include <unistd.h>
 
 // MAP_ANONYMOUS is called MAP_ANON on OS X

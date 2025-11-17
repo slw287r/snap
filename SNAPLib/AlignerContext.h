@@ -82,7 +82,7 @@ public:
     virtual std::unordered_set<_int64> hskCovSet();
 
     // IC positions to IC name index map
-    virtual std::unordered_map<_int64, _int8> icPosMap();
+    virtual std::unordered_map<_int64, _int8> icPosMap(const ReaderContext& context);
 
     // new stats object
     virtual AlignerStats* newStats() = 0;

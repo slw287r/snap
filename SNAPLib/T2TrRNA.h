@@ -86,6 +86,7 @@ _int64 T2T_HSK_RANGE[9][2] = {
     { 1789190014, 1789193278 }
 };
 
+// [TODO] parse the ICs from Genome
 #define T2T_IC_NROW 51
 _int64 T2T_IC_RANGE[51][3] = {
     { 3117344069, 3117344719, 1 },

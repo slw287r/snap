@@ -240,7 +240,7 @@ AlignerContext::runThread()
     }
     extension->finishThread();
 }
-    
+
     void
 AlignerContext::finishThread(AlignerContext* common)
 {
@@ -262,12 +262,26 @@ AlignerContext::rrnaPosSet()
 }
 
     std::unordered_map<_int64, _int8>
-AlignerContext::icPosMap()
+AlignerContext::icPosMap(const ReaderContext& context)
 {
+    _int64 i = 0, j = 0, k = 0;
     std::unordered_map<_int64, _int8> newMap;
-    for (unsigned i = 0; i < T2T_IC_NROW; ++i)
-        for (_int64 j = T2T_IC_RANGE[i][0]; j <= T2T_IC_RANGE[i][1]; ++j)
-            newMap.insert(std::make_pair(j, T2T_IC_RANGE[i][2]));
+    if (context.genome)
+    {
+        int numContigs = context.genome->getNumContigs();
+        for (i = 0; i < numContigs; i++)
+        {
+            const Genome::Contig* contig = context.genome->getContigByOriginalContigNumber(OriginalContigNum(i));
+			if (*contig->name == 'I' && *(contig->name + 1) == 'C')
+			{
+				_int64 pos = getBeginningLocation(contig->name);
+				_int64 len = contig->length - context.genome->getChromosomePadding();
+				for (k = 0; k < len; ++K)
+					newMap.insert(std::make_pair(j, pos + k));
+				++j;
+			}
+		}
+	}
     return newMap;
 }
 
