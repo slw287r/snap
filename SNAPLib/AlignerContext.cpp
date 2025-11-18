@@ -277,9 +277,8 @@ AlignerContext::icPosMap()
             {
                 _int64 pos = contig->beginningLocation;
                 _int64 len = contig->length - index->getGenome()->getChromosomePadding();
-                fprintf(stderr, "%d\t%" PRId64 "\t%" PRId64 "\n", j + 1, pos, len);
                 for (k = 0; k < len; ++k)
-                	newMap.insert(std::make_pair(j, pos + k));
+                    newMap.insert(std::make_pair(pos + k, j));
             }
         }
     }
@@ -701,11 +700,7 @@ AlignerContext::printStats()
         fprintf(statFile, "\t\t\"coverage\": %.3f,\n", 100.0 * stats->hskCov.size() / T2T_HSK_SIZE);
         fprintf(statFile, "\t\t\"depth\": %.3f\n", 1.0 * stats->hskBases / T2T_HSK_SIZE);
         if (!ic.size())
-		{
-			// [DEBUG]
-			PP
             fputs("\t}\n", statFile);
-		}
         else
         {
             fputs("\t},\n", statFile);
