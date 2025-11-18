@@ -262,7 +262,7 @@ AlignerContext::rrnaPosSet()
 }
 
     std::unordered_map<_int64, _int8>
-AlignerContext::icPosMap(const ReaderContext& context)
+AlignerContext::icPosMap()
 {
     _int64 i = 0, j = 0, k = 0;
     std::unordered_map<_int64, _int8> newMap;
