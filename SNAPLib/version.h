@@ -1,2 +1,2 @@
 #define SNAP_VERSION "2.0.5e"
-#define BRANCH_COMMIT "dev 8b89d18"
+#define BRANCH_COMMIT "dev 05ab3ff"
