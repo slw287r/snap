@@ -362,8 +362,6 @@ SingleAlignerContext::runIterationThreadImpl(Read *& read)
             }
             if (hasIC)
             {
-				// [DEBUG]
-				PP
                 auto it = icpos.find(alignmentResults[0].location);
                 if (it != icpos.end())
                 {

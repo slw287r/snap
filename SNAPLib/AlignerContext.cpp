@@ -701,7 +701,11 @@ AlignerContext::printStats()
         fprintf(statFile, "\t\t\"coverage\": %.3f,\n", 100.0 * stats->hskCov.size() / T2T_HSK_SIZE);
         fprintf(statFile, "\t\t\"depth\": %.3f\n", 1.0 * stats->hskBases / T2T_HSK_SIZE);
         if (!ic.size())
+		{
+			// [DEBUG]
+			PP
             fputs("\t}\n", statFile);
+		}
         else
         {
             fputs("\t},\n", statFile);
