@@ -275,7 +275,7 @@ AlignerContext::icPosMap()
 		{
 			_int64 pos = contig->beginningLocation;
 			_int64 len = contig->length - index->getGenome()->getChromosomePadding();
-			fprintf(stderr, "%d\t%" PRI64 "\t%" PRI64 "\n", j + 1, pos, len);
+			fprintf(stderr, "%d\t%" PRId64 "\t%" PRId64 "\n", j + 1, pos, len);
 			for (k = 0; k < len; ++k)
 				newMap.insert(std::make_pair(j, pos + k));
 			++j;
