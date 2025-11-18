@@ -271,16 +271,18 @@ AlignerContext::icPosMap()
     {
         const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
         const _int64 ctgLength = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i))->length;
-		if (*contig->name == 'I' && *(contig->name + 1) == 'C')
-		{
-			_int64 pos = contig->beginningLocation;
-			_int64 len = contig->length - index->getGenome()->getChromosomePadding();
-			fprintf(stderr, "%d\t%" PRId64 "\t%" PRId64 "\n", j + 1, pos, len);
-			for (k = 0; k < len; ++k)
-				newMap.insert(std::make_pair(j, pos + k));
-			++j;
-		}
-	}
+        if (*contig->name == 'I' && *(contig->name + 1) == 'C')
+        {
+            if ((j = atoi(contig->name + 2)))
+            {
+                _int64 pos = contig->beginningLocation;
+                _int64 len = contig->length - index->getGenome()->getChromosomePadding();
+                fprintf(stderr, "%d\t%" PRId64 "\t%" PRId64 "\n", j + 1, pos, len);
+                for (k = 0; k < len; ++k)
+                	newMap.insert(std::make_pair(j, pos + k));
+            }
+        }
+    }
     return newMap;
 }
 
