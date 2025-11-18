@@ -338,28 +338,30 @@ AlignerContext::initialize()
     } else {
         index = g_index;
     }
-    hasIC = false;
     isT2T = index->getGenome()->getCountOfBases() >= T2T_GENOME_BASES ? true : false;
     // check chr sizes in order
-    if (isT2T) {
+    if (isT2T)
+    {
         int numContigs = index->getGenome()->getNumContigs();
         if (numContigs < T2T_CHROMOSOME_NROW)
-            isT2T = hasIC = false;
-        else {
-            for (int i = 0; i < T2T_CHROMOSOME_NROW; ++i) { // check chr order
+            isT2T = false;
+        else
+        {
+            for (int i = 0; i < T2T_CHROMOSOME_NROW; ++i) // check chr order
+            {
                 const _int64 ctgLength = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i))->length;
-                if (ctgLength - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i]) {
+                if (ctgLength - index->getGenome()->getChromosomePadding() != T2T_CHROMOSOME_SIZES[i])
+                {
                     isT2T = false;
                     break;
                 }
             }
-            if (isT2T && numContigs == T2T_CHROMOSOME_NROW + T2T_IC_NROW)
-                hasIC = true;
         }
     }
     rrnapos = rrnaPosSet();
     hskpos = hskPosSet();
     icpos = icPosMap();
+    hasIC = icpos.size() ? true : false;
     maxHits_ = options->maxHits;
     maxDist_ = options->maxDist;
     maxDistForIndels_ = options->maxDistForIndels;
