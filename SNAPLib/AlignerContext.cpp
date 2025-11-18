@@ -266,20 +266,18 @@ AlignerContext::icPosMap(const ReaderContext& context)
 {
     _int64 i = 0, j = 0, k = 0;
     std::unordered_map<_int64, _int8> newMap;
-    if (context.genome)
+    int numContigs = index->getGenome()->getNumContigs();
+    for (i = 0; i < numContigs; i++)
     {
-        int numContigs = context.genome->getNumContigs();
-        for (i = 0; i < numContigs; i++)
-        {
-            const Genome::Contig* contig = context.genome->getContigByOriginalContigNumber(OriginalContigNum(i));
-			if (*contig->name == 'I' && *(contig->name + 1) == 'C')
-			{
-				_int64 pos = getBeginningLocation(contig->name);
-				_int64 len = contig->length - context.genome->getChromosomePadding();
-				for (k = 0; k < len; ++K)
-					newMap.insert(std::make_pair(j, pos + k));
-				++j;
-			}
+        const Genome::Contig* contig = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i));
+        const _int64 ctgLength = index->getGenome()->getContigByOriginalContigNumber(OriginalContigNum(i))->length;
+		if (*contig->name == 'I' && *(contig->name + 1) == 'C')
+		{
+			_int64 pos = contig->beginningLocation;
+			_int64 len = contig->length - index->getGenome()->getChromosomePadding();
+			for (k = 0; k < len; ++k)
+				newMap.insert(std::make_pair(j, pos + k));
+			++j;
 		}
 	}
     return newMap;
