@@ -280,11 +280,11 @@ AlignerOptions::usage()
             " -ss   Statistics json file for snap-aligner single alignment\n"
             " -ppp  Print padded positions for regions of interest to stderr ([DEBUG] only), compile with -D_DEBUG_3P to enable "
 #ifdef _DEBUG_3P
-			"(available)"
+            "(available)"
 #else
-			"(unavailable)"
+            "(unavailable)"
 #endif
-			"\n"
+            "\n"
             ,
             extraSearchDepth,
             expansionFactor,
@@ -965,7 +965,7 @@ AlignerOptions::usage()
             BigAllocUseHugePages = false;
             return true;
         } else if (strcmp(argv[n], "--ppp") == 0 || strcmp(argv[n], "-ppp") == 0) {
-			printPaddedPostions = true;
+            printPaddedPostions = true;
             return true;
         } else if (strcmp(argv[n], "-hp") == 0) {
             BigAllocUseHugePages = true;

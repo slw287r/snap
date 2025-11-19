@@ -61,7 +61,7 @@ static void usage()
 		"    %s single /path/to/dbdir -fastq /dev/null\n"
 		"  \e[3;90mHSK reads counts and coverage are reported if the T2T-v2 reference\n"
 		"  is used. CAPm/t internal control sequences are also counted if the\n"
-		"  reference contains them.\e[0;0m\n",
+		"  reference contains them (IC1, IC2,...).\e[0;0m\n",
 		__progname, __progname);
 }
 
